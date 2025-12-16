@@ -15,15 +15,15 @@ sdk = mercadopago.SDK(MP_ACCESS_TOKEN)
 # BASE DE DATOS DE SERVICIOS
 # (Títulos originales restaurados)
 SERVICES_RATES = {
-    "410":  {"rate": 2700, "name": "Me gusta USA - Mixto -"},
-    "3878": {"rate": 2900, "name": "Me gusta USA - Mayormente femeninos"},
-    "417":  {"rate": 14000,"name": "Me gusta USA + Alcance + Impresiones + Visitas al perfil."},
-    "2326": {"rate": 2300, "name": "Me gusta + Alcance + Impresiones."},
-    "390":  {"rate": 4200, "name": "Me gusta Brasil"},
-    "2055": {"rate": 397,  "name": "IMPRESIONES PUBLICACIONES (Foto y Reel)"},
-    "2704": {"rate": 17000,"name": "Comentarios - Emoji positivos mixtos [😘💞💐🏵️😍🤩]"},
-    "5924": {"rate": 10000,"name": "Comentarios - Emoji NEGATIVOS mixtos [💩👎🏼🤢😡🤬]"},
-    "5923": {"rate": 10000,"name": "Comentarios - Emoji NEGATIVOS mixtos [😔🤮💔😈🥵]"}
+    "410":  {"rate": 2700, "name": "INSTAGRAM - Me gusta USA - Mixto -"},
+    "3878": {"rate": 2900, "name": "INSTAGRAM - Me gusta USA - Mayormente femeninos"},
+    "417":  {"rate": 14000,"name": "INSTAGRAM - Me gusta USA + Alcance + Impresiones + Visitas al perfil."},
+    "2326": {"rate": 2300, "name": "INSTAGRAM - Me gusta + Alcance + Impresiones."},
+    "390":  {"rate": 4200, "name": "INSTAGRAM - Me gusta Brasil"},
+    "2055": {"rate": 397,  "name": "INSTAGRAM - IMPRESIONES PUBLICACIONES (Foto y Reel)"},
+    "2704": {"rate": 17000,"name": "INSTAGRAM - Comentarios - Emoji positivos mixtos [😘💞💐🏵️🤩]"},
+    "5924": {"rate": 10000,"name": "INSTAGRAM - Comentarios - Emoji NEGATIVOS mixtos [💩👎🏼🤢😡🤬]"},
+    "5923": {"rate": 10000,"name": "INSTAGRAM - Comentarios - Emoji NEGATIVOS mixtos [😔🤮💔😈🥵]"}
 }
 
 @app.route('/')
