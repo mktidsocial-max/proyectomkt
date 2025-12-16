@@ -1,42 +1,42 @@
 [
   {
     "id": 410,
-    "name": "INSTAGRAM - Me gusta USA - Mixto -",
+    "name": "INSTAGRAM - Me gusta USA a publicaciones - Mixto -",
     "rate": 10200,
     "min": 30,
     "max": 20000
   },
   {
     "id": 3878,
-    "name": "INSTAGRAM - Me gusta USA - Mayormente femeninos",
+    "name": "INSTAGRAM - Me gusta USA a publicaciones - Mayormente femeninos",
     "rate": 15000,
     "min": 30,
     "max": 20000
   },
   {
     "id": 417,
-    "name": "INSTAGRAM - Me gusta USA + Alcance + Impresiones + Visitas al perfil.",
+    "name": "INSTAGRAM - Me gusta USA a publicaciones + Alcance + Impresiones + Visitas al perfil.",
     "rate": 17000,
     "min": 20,
     "max": 5000
   },
   {
     "id": 2326,
-    "name": "INSTAGRAM - Me gusta Mundial + Alcance + Impresiones. ",
+    "name": "INSTAGRAM - Me gusta Mundial a publicaciones + Alcance + Impresiones. ",
     "rate": 4300,
     "min": 100,
     "max": 100000
   },
   {
     "id": 390,
-    "name": "INSTAGRAM - Me gusta Brasil",
+    "name": "INSTAGRAM - Me gusta BRASIL a publicaciones",
     "rate": 10200,
     "min": 50,
     "max": 5000
   },
   {
     "id": 2055,
-    "name": "INSTAGRAM - IMPRESIONES PUBLICACIONES (Foto y Reel)",
+    "name": "INSTAGRAM - IMPRESIONES a publicaciones (Fotos y Reels)",
     "rate": 800,
     "min": 100,
     "max": 200000
