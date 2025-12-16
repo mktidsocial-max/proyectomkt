@@ -8,77 +8,56 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #050505; /* Negro casi absoluto */
-            color: #d4d4d8; /* Gris zinc muy claro */
-        }
-        .font-vip {
-            font-family: 'Cinzel', serif;
-        }
-        /* Efecto sutil de brillo dorado en bordes al enfocar */
-        .input-vip:focus {
-            border-color: #a1a1aa;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
-            outline: none;
-        }
-        .hidden-screen {
-            display: none;
-        }
-        /* Animación suave de entrada */
-        .fade-in {
-            animation: fadeIn 0.8s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #d4d4d8; }
+        .font-vip { font-family: 'Cinzel', serif; }
+        .input-vip:focus { border-color: #a1a1aa; box-shadow: 0 0 15px rgba(255, 255, 255, 0.05); outline: none; }
+        .hidden-screen { display: none; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Scrollbar personalizado oscuro */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
     </style>
 </head>
-<body class="h-screen flex flex-col items-center justify-center selection:bg-white selection:text-black">
+<body class="h-screen flex flex-col items-center justify-center selection:bg-white selection:text-black overflow-hidden">
 
-    <div id="login-screen" class="w-full max-w-md p-8 border border-zinc-800 bg-zinc-900/30 backdrop-blur-sm shadow-2xl fade-in">
+    <div id="login-screen" class="w-full max-w-md p-8 border border-zinc-800 bg-zinc-900/30 backdrop-blur-sm shadow-2xl fade-in relative z-10">
         <div class="text-center mb-10">
             <h1 class="font-vip text-3xl text-white tracking-widest mb-2">ACCESO RESTRINGIDO</h1>
             <p class="text-xs text-zinc-500 uppercase tracking-[0.2em]">Solo Personal Autorizado</p>
         </div>
-        
         <form id="login-form" class="space-y-6">
             <div>
-                <label class="block text-xs uppercase tracking-wider text-zinc-500 mb-2">Identificador</label>
-                <input type="text" id="username" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip placeholder-zinc-800 transition-all" placeholder="ID DE AGENTE">
+                <input type="text" id="username" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip placeholder-zinc-800 text-center tracking-wider" placeholder="ID DE AGENTE">
             </div>
             <div>
-                <label class="block text-xs uppercase tracking-wider text-zinc-500 mb-2">Llave de Acceso</label>
-                <input type="password" id="password" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip placeholder-zinc-800 transition-all" placeholder="••••••••••••">
+                <input type="password" id="password" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip placeholder-zinc-800 text-center tracking-wider" placeholder="CLAVE DE ACCESO">
             </div>
-            <div id="error-msg" class="text-red-900 text-xs text-center h-4 opacity-0 transition-opacity">Credenciales inválidas. Intento registrado.</div>
-            
-            <button type="submit" class="w-full bg-white text-black font-vip font-bold py-3 hover:bg-zinc-200 transition-colors tracking-widest text-sm">
-                INGRESAR AL SISTEMA
-            </button>
+            <div id="error-msg" class="text-red-900 text-xs text-center h-4 opacity-0 transition-opacity">Credenciales inválidas.</div>
+            <button type="submit" class="w-full bg-white text-black font-vip font-bold py-3 hover:bg-zinc-200 transition-colors tracking-widest text-sm">ENTRAR</button>
         </form>
     </div>
 
-    <div id="dashboard-screen" class="hidden-screen w-full max-w-6xl p-6 fade-in">
-        <header class="flex justify-between items-end border-b border-zinc-800 pb-6 mb-8">
+    <div id="dashboard-screen" class="hidden-screen w-full h-full flex flex-col p-6 fade-in relative">
+        <header class="flex justify-between items-end border-b border-zinc-800 pb-4 mb-4 flex-none">
             <div>
-                <h2 class="font-vip text-2xl text-white tracking-widest">CATÁLOGO DE ACTIVOS</h2>
-                <p class="text-xs text-zinc-500 mt-1">Nivel de Seguridad: MÁXIMO // Actualizado: <span id="current-date"></span></p>
+                <h2 class="font-vip text-xl text-white tracking-widest">CATÁLOGO DE ACTIVOS</h2>
+                <p class="text-xs text-zinc-500 mt-1">Nivel de Seguridad: MÁXIMO // <span id="current-date"></span></p>
             </div>
-            <button onclick="logout()" class="text-xs text-zinc-600 hover:text-white transition-colors uppercase tracking-widest">
-                [ Cerrar Sesión Segura ]
-            </button>
+            <button onclick="logout()" class="text-xs text-zinc-600 hover:text-white uppercase tracking-widest border border-transparent hover:border-zinc-800 px-3 py-1">[ Cerrar Sesión ]</button>
         </header>
 
-        <div class="overflow-x-auto">
+        <div class="flex-grow overflow-auto">
             <table class="w-full text-left border-collapse">
-                <thead>
+                <thead class="sticky top-0 bg-[#050505] z-10">
                     <tr class="text-xs text-zinc-500 border-b border-zinc-800 font-vip tracking-wider">
-                        <th class="p-4 font-normal">ID LEGION</th>
-                        <th class="p-4 font-normal">PROTOCOLO / SERVICIO</th>
+                        <th class="p-4 font-normal">ID</th>
+                        <th class="p-4 font-normal">SERVICIO</th>
                         <th class="p-4 font-normal text-right">INVERSIÓN (x1000)</th>
-                        <th class="p-4 font-normal text-right">RANGO (MIN - MAX)</th>
+                        <th class="p-4 font-normal text-right">RANGO</th>
                         <th class="p-4 font-normal text-center">ACCIÓN</th>
                     </tr>
                 </thead>
@@ -86,25 +65,55 @@
                     </tbody>
             </table>
         </div>
+    </div>
 
-        <footer class="mt-20 border-t border-zinc-900 pt-6 text-center">
-            <p class="text-[10px] text-zinc-700 uppercase tracking-widest">
-                Confidencialidad Estricta. El uso no autorizado de esta plataforma será monitoreado.
-            </p>
-        </footer>
+    <div id="order-modal" class="hidden-screen fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm fade-in">
+        <div class="w-full max-w-lg bg-zinc-900 border border-zinc-700 p-8 shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white">✕</button>
+            
+            <h3 class="font-vip text-xl text-white mb-6 border-b border-zinc-800 pb-2">CONFIGURAR ORDEN <span id="modal-id" class="text-zinc-500 text-sm ml-2"></span></h3>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-xs uppercase text-zinc-500 mb-1">Servicio Seleccionado</label>
+                    <div id="modal-service-name" class="text-white font-medium text-lg"></div>
+                    <div class="text-xs text-zinc-400 mt-1">Precio base: $<span id="modal-rate"></span> por 1,000</div>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase text-zinc-500 mb-2">Enlace Objetivo (Link)</label>
+                    <input type="text" id="order-link" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip" placeholder="https://instagram.com/...">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs uppercase text-zinc-500 mb-2">Cantidad</label>
+                        <input type="number" id="order-quantity" oninput="calculateTotal()" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip" placeholder="0">
+                        <p class="text-[10px] text-zinc-500 mt-1">Mín: <span id="modal-min"></span> - Máx: <span id="modal-max"></span></p>
+                    </div>
+                    <div class="bg-zinc-950 border border-zinc-800 p-3 flex flex-col justify-center items-end">
+                        <span class="text-xs text-zinc-500 uppercase">Costo Estimado</span>
+                        <span class="text-xl text-white font-mono" id="modal-total">$0.00</span>
+                    </div>
+                </div>
+
+                <button onclick="submitOrder()" class="w-full bg-white text-black font-vip font-bold py-4 hover:bg-zinc-200 transition-colors tracking-widest mt-4">
+                    CONFIRMAR & ENVIAR
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 1. CONFIGURACIÓN DE SEGURIDAD (SIMULADA)
-        // En un entorno real, esto iría contra una base de datos.
-        const VALID_USER = "admin"; 
-        const VALID_PASS = "vip2025"; 
-
-        // 2. DATOS DE LOS SERVICIOS (Tu JSON)
+        // --- CONFIGURACIÓN ---
+        const CREDENTIALS = { user: "admin", pass: "vip2025" };
+        const WA_PHONE = "549XXXXXXXXXX"; // <--- PON TU NUMERO AQUI (Ej: 5491122334455)
+        
+        // --- DATOS ---
         const services = [
             { id: 410, name: "Me gusta USA - Mixto", rate: 2700, min: 30, max: 20000 },
             { id: 3878, name: "Me gusta USA - Mayormente femeninos", rate: 2900, min: 30, max: 20000 },
-            { id: 417, name: "Me gusta USA + Alcance + Impresiones", rate: 14000, min: 20, max: 5000 },
+            { id: 417, name: "Me gusta USA + Alcance + Impresiones + Visitas", rate: 14000, min: 20, max: 5000 },
             { id: 2326, name: "Me gusta + Alcance + Impresiones", rate: 2300, min: 100, max: 100000 },
             { id: 390, name: "Me gusta Brasil", rate: 4200, min: 50, max: 5000 },
             { id: 2055, name: "IMPRESIONES (Foto y Reel)", rate: 397, min: 100, max: 200000 },
@@ -113,57 +122,110 @@
             { id: 5923, name: "Comentarios Negativos [😔🤮💔]", rate: 10000, min: 10, max: 200000 }
         ];
 
-        // 3. LÓGICA DE LOGIN
-        const loginScreen = document.getElementById('login-screen');
-        const dashboardScreen = document.getElementById('dashboard-screen');
-        const loginForm = document.getElementById('login-form');
-        const errorMsg = document.getElementById('error-msg');
+        let currentService = null;
 
-        loginForm.addEventListener('submit', (e) => {
+        // --- LOGIN ---
+        document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-
-            if(user === VALID_USER && pass === VALID_PASS) {
-                // Login Exitoso
-                loginScreen.classList.add('hidden-screen');
-                dashboardScreen.classList.remove('hidden-screen');
+            if(document.getElementById('username').value === CREDENTIALS.user && 
+               document.getElementById('password').value === CREDENTIALS.pass) {
+                document.getElementById('login-screen').classList.add('hidden-screen');
+                document.getElementById('dashboard-screen').classList.remove('hidden-screen');
                 loadServices();
                 document.getElementById('current-date').innerText = new Date().toLocaleDateString();
             } else {
-                // Error
-                errorMsg.style.opacity = '1';
-                setTimeout(() => errorMsg.style.opacity = '0', 3000);
+                const err = document.getElementById('error-msg');
+                err.style.opacity = '1';
+                setTimeout(() => err.style.opacity = '0', 3000);
             }
         });
 
-        function logout() {
-            location.reload();
-        }
-
-        // 4. RENDERIZADO DE TABLA
+        // --- TABLA ---
         function loadServices() {
             const tbody = document.getElementById('services-table-body');
-            tbody.innerHTML = ''; // Limpiar
-
-            services.forEach(service => {
+            tbody.innerHTML = '';
+            services.forEach(s => {
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-zinc-800/50 hover:bg-zinc-900 transition-colors group";
-                
                 tr.innerHTML = `
-                    <td class="p-4 font-mono text-zinc-500 text-xs">${service.id}</td>
-                    <td class="p-4 font-medium text-white">${service.name}</td>
-                    <td class="p-4 text-right font-mono text-zinc-400">$${service.rate.toLocaleString()}</td>
-                    <td class="p-4 text-right font-mono text-xs text-zinc-500">${service.min.toLocaleString()} - ${service.max.toLocaleString()}</td>
+                    <td class="p-4 font-mono text-zinc-500 text-xs">#${s.id}</td>
+                    <td class="p-4 font-medium text-white">
+                        ${s.name} <span class="text-zinc-600 text-[10px] ml-1 uppercase tracking-wider">/ Lote x1000</span>
+                    </td>
+                    <td class="p-4 text-right font-mono text-zinc-400">$${s.rate.toLocaleString()}</td>
+                    <td class="p-4 text-right font-mono text-xs text-zinc-500">${s.min} - ${s.max/1000}k</td>
                     <td class="p-4 text-center">
-                        <button class="px-3 py-1 border border-zinc-600 text-[10px] uppercase text-zinc-400 hover:bg-white hover:text-black hover:border-white transition-all tracking-wider">
-                            Solicitar
+                        <button onclick="openModal(${s.id})" class="px-4 py-2 border border-zinc-600 text-[10px] uppercase text-zinc-300 hover:bg-white hover:text-black hover:border-white transition-all tracking-widest font-bold">
+                            SOLICITAR
                         </button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
+
+        // --- MODAL LOGIC ---
+        function openModal(id) {
+            currentService = services.find(s => s.id === id);
+            if(!currentService) return;
+
+            document.getElementById('modal-id').innerText = `// ID: ${currentService.id}`;
+            document.getElementById('modal-service-name').innerText = currentService.name;
+            document.getElementById('modal-rate').innerText = currentService.rate;
+            document.getElementById('modal-min').innerText = currentService.min;
+            document.getElementById('modal-max').innerText = currentService.max;
+            
+            // Reset fields
+            document.getElementById('order-link').value = '';
+            document.getElementById('order-quantity').value = '';
+            document.getElementById('modal-total').innerText = '$0.00';
+
+            document.getElementById('order-modal').classList.remove('hidden-screen');
+        }
+
+        function closeModal() {
+            document.getElementById('order-modal').classList.add('hidden-screen');
+        }
+
+        function calculateTotal() {
+            const qty = document.getElementById('order-quantity').value;
+            if(qty && currentService) {
+                const total = (qty / 1000) * currentService.rate;
+                document.getElementById('modal-total').innerText = `$${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            } else {
+                document.getElementById('modal-total').innerText = '$0.00';
+            }
+        }
+
+        function submitOrder() {
+            const link = document.getElementById('order-link').value;
+            const qty = document.getElementById('order-quantity').value;
+            const total = document.getElementById('modal-total').innerText;
+
+            if(!link || !qty) {
+                alert("INFORMACIÓN INCOMPLETA: Se requieren Link y Cantidad.");
+                return;
+            }
+
+            // Validar Min/Max (Opcional, solo advertencia)
+            if(qty < currentService.min || qty > currentService.max) {
+                if(!confirm(`ATENCIÓN: La cantidad está fuera del rango recomendado (${currentService.min} - ${currentService.max}). ¿Proceder igual?`)) return;
+            }
+
+            // Construir mensaje VIP
+            const msg = `:: NUEVA ORDEN DE SERVICIO ::%0A%0A` +
+                        `🔹 ID: ${currentService.id}%0A` +
+                        `🔹 SERVICIO: ${currentService.name}%0A` +
+                        `🔹 CANTIDAD: ${qty}%0A` +
+                        `🔹 OBJETIVO: ${link}%0A` +
+                        `💰 COSTO ESTIMADO: ${total}%0A%0A` +
+                        `Solicito confirmación inmediata.`;
+
+            window.open(`https://wa.me/${WA_PHONE}?text=${msg}`, '_blank');
+            closeModal();
+        }
+
+        function logout() { location.reload(); }
     </script>
 </body>
 </html>
