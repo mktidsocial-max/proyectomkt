@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios Instagram</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold mb-6 text-center text-blue-400">Boost Instagram</h1>
+        <form action="/comprar" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-sm mb-2">Elige el servicio</label>
+                <select name="service_code" class="w-full p-3 rounded bg-gray-700 border border-gray-600">
+                    {% for code, details in services.items() %}
+                    <option value="{{ code }}">{{ details.title }} - ${{ details.price }} ARS</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm mb-2">Enlace (Link)</label>
+                <input type="url" name="link" placeholder="https://instagram.com/..." required class="w-full p-3 rounded bg-gray-700 border border-gray-600">
+            </div>
+            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 font-bold py-3 rounded transition">
+                Pagar con Mercado Pago
+            </button>
+        </form>
+    </div>
+</body>
+</html>
