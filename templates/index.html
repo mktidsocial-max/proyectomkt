@@ -66,22 +66,34 @@
                 <input type="hidden" name="service_id" id="hidden-service-id">
                 
                 <div>
-                    <label class="block text-xs uppercase text-zinc-500 mb-1">Servicio</label>
-                    <div id="modal-service-name" class="text-white font-medium text-lg"></div>
-                    <div class="text-xs text-zinc-400">Precio base: $<span id="modal-rate"></span></div>
+                    <label class="block text-xs uppercase text-zinc-500 mb-1">Servicio Seleccionado</label>
+                    <div id="modal-service-name" class="text-white font-vip tracking-wide text-lg"></div>
+                    <div class="text-xs text-zinc-400 mt-1 flex justify-between">
+                        <span>Precio base: $<span id="modal-rate"></span></span>
+                        <span class="text-zinc-500" id="modal-limits-text"></span>
+                    </div>
                 </div>
+
                 <div>
-                    <input type="text" name="link" required class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip" placeholder="Enlace (Link)">
+                    <label class="block text-xs uppercase text-zinc-500 mb-2">Enlace Objetivo</label>
+                    <input type="text" name="link" required class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip" placeholder="https://instagram.com/p/C...">
+                    <p class="text-[10px] text-yellow-700/80 mt-1 uppercase tracking-wider">⚠️ Usar enlace de la PUBLICACIÓN (Post/Reel), no del perfil.</p>
                 </div>
+
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="number" name="quantity" id="order-quantity" oninput="calculateTotal()" required class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip" placeholder="Cantidad">
+                    <div>
+                        <label class="block text-xs uppercase text-zinc-500 mb-2">Cantidad</label>
+                        <input type="number" name="quantity" id="order-quantity" oninput="calculateTotal()" required class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip" placeholder="0">
+                    </div>
                     <div class="bg-zinc-950 border border-zinc-800 p-3 flex flex-col justify-center items-end">
                         <span class="text-xs text-zinc-500 uppercase">Total Estimado</span>
                         <span class="text-xl text-white font-mono" id="modal-total">$0.00</span>
+                        <span class="text-[9px] text-zinc-600 uppercase mt-1">Mínimo x Pedido: $500</span>
                     </div>
                 </div>
+
                 <button type="submit" class="w-full bg-white text-black font-vip font-bold py-4 hover:bg-zinc-200 transition-colors tracking-widest mt-4">
-                    IR AL PAGO
+                    IR AL PAGO SEGURO
                 </button>
             </form>
         </div>
@@ -90,17 +102,17 @@
     <script>
         const CREDENTIALS = { user: "admin", pass: "vip2025" };
         
-        // DATOS (Deben coincidir con los IDs en app.py)
+        // DATOS VISUALES (Deben coincidir IDs con app.py)
         const services = [
-            { id: 410, name: "Likes USA - Mixto", rate: 2700, min: 30, max: 20000 },
-            { id: 3878, name: "Likes USA - Femeninos", rate: 2900, min: 30, max: 20000 },
-            { id: 417, name: "Likes USA + Alcance", rate: 14000, min: 20, max: 5000 },
-            { id: 2326, name: "Likes + Alcance + Impr.", rate: 2300, min: 100, max: 100000 },
-            { id: 390, name: "Likes Brasil", rate: 4200, min: 50, max: 5000 },
-            { id: 2055, name: "Impresiones", rate: 397, min: 100, max: 200000 },
-            { id: 2704, name: "Comentarios Positivos", rate: 17000, min: 10, max: 10000 },
-            { id: 5924, name: "Comentarios Negativos 1", rate: 10000, min: 10, max: 200000 },
-            { id: 5923, name: "Comentarios Negativos 2", rate: 10000, min: 10, max: 200000 }
+            { id: 410, name: "Likes USA - Mixto (Alta Calidad)", rate: 2700, min: 30, max: 20000 },
+            { id: 3878, name: "Likes USA - Femeninos (VIP)", rate: 2900, min: 30, max: 20000 },
+            { id: 417, name: "Pack Power: Likes + Alcance + Visitas", rate: 14000, min: 20, max: 5000 },
+            { id: 2326, name: "Likes + Alcance + Impresiones", rate: 2300, min: 100, max: 100000 },
+            { id: 390, name: "Likes Brasil (Reales)", rate: 4200, min: 50, max: 5000 },
+            { id: 2055, name: "Impresiones (Foto/Reel)", rate: 397, min: 100, max: 200000 },
+            { id: 2704, name: "Comentarios Positivos (Emojis)", rate: 17000, min: 10, max: 10000 },
+            { id: 5924, name: "Comentarios Negativos (Hate Soft)", rate: 10000, min: 10, max: 200000 },
+            { id: 5923, name: "Comentarios Negativos (Hate Hard)", rate: 10000, min: 10, max: 200000 }
         ];
 
         let currentService = null;
@@ -120,7 +132,6 @@
             }
         });
 
-        // TABLA
         function loadServices() {
             const tbody = document.getElementById('services-table-body');
             tbody.innerHTML = '';
@@ -138,19 +149,18 @@
             });
         }
 
-        // MODAL
         function openModal(id) {
             currentService = services.find(s => s.id === id);
             
-            // Llenar datos visuales
             document.getElementById('modal-service-name').innerText = currentService.name;
             document.getElementById('modal-rate').innerText = currentService.rate;
-            document.getElementById('modal-total').innerText = '$0.00';
             
-            // Llenar el ID oculto que se envía a Python
+            // Inyectar texto de Límites en el Modal
+            document.getElementById('modal-limits-text').innerText = `Límites: ${currentService.min} mín - ${currentService.max} máx`;
+            
+            document.getElementById('modal-total').innerText = '$0.00';
             document.getElementById('hidden-service-id').value = currentService.id;
             
-            // Configurar límites en el input (opcional visualmente)
             const inputQty = document.getElementById('order-quantity');
             inputQty.min = currentService.min;
             inputQty.max = currentService.max;
@@ -167,8 +177,12 @@
         function calculateTotal() {
             const qty = document.getElementById('order-quantity').value;
             if(qty && currentService) {
-                const total = (qty / 1000) * currentService.rate;
+                let total = (qty / 1000) * currentService.rate;
+                // Muestra visual del mínimo (aunque el backend lo fuerce, es bueno mostrarlo aquí)
+                if (total < 500) total = 500;
                 document.getElementById('modal-total').innerText = `$${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            } else {
+                document.getElementById('modal-total').innerText = '$0.00';
             }
         }
     </script>
