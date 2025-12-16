@@ -3,29 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Servicios Instagram</title>
+    <title>SISTEMA PRIVADO DE GESTIÓN</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505; /* Negro casi absoluto */
+            color: #d4d4d8; /* Gris zinc muy claro */
+        }
+        .font-vip {
+            font-family: 'Cinzel', serif;
+        }
+        /* Efecto sutil de brillo dorado en bordes al enfocar */
+        .input-vip:focus {
+            border-color: #a1a1aa;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+            outline: none;
+        }
+        .hidden-screen {
+            display: none;
+        }
+        /* Animación suave de entrada */
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
-    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 class="text-2xl font-bold mb-6 text-center text-blue-400">Boost Instagram</h1>
-        <form action="/comprar" method="POST" class="space-y-4">
+<body class="h-screen flex flex-col items-center justify-center selection:bg-white selection:text-black">
+
+    <div id="login-screen" class="w-full max-w-md p-8 border border-zinc-800 bg-zinc-900/30 backdrop-blur-sm shadow-2xl fade-in">
+        <div class="text-center mb-10">
+            <h1 class="font-vip text-3xl text-white tracking-widest mb-2">ACCESO RESTRINGIDO</h1>
+            <p class="text-xs text-zinc-500 uppercase tracking-[0.2em]">Solo Personal Autorizado</p>
+        </div>
+        
+        <form id="login-form" class="space-y-6">
             <div>
-                <label class="block text-sm mb-2">Elige el servicio</label>
-                <select name="service_code" class="w-full p-3 rounded bg-gray-700 border border-gray-600">
-                    {% for code, details in services.items() %}
-                    <option value="{{ code }}">{{ details.title }} - ${{ details.price }} ARS</option>
-                    {% endfor %}
-                </select>
+                <label class="block text-xs uppercase tracking-wider text-zinc-500 mb-2">Identificador</label>
+                <input type="text" id="username" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip placeholder-zinc-800 transition-all" placeholder="ID DE AGENTE">
             </div>
             <div>
-                <label class="block text-sm mb-2">Enlace (Link)</label>
-                <input type="url" name="link" placeholder="https://instagram.com/..." required class="w-full p-3 rounded bg-gray-700 border border-gray-600">
+                <label class="block text-xs uppercase tracking-wider text-zinc-500 mb-2">Llave de Acceso</label>
+                <input type="password" id="password" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip placeholder-zinc-800 transition-all" placeholder="••••••••••••">
             </div>
-            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 font-bold py-3 rounded transition">
-                Pagar con Mercado Pago
+            <div id="error-msg" class="text-red-900 text-xs text-center h-4 opacity-0 transition-opacity">Credenciales inválidas. Intento registrado.</div>
+            
+            <button type="submit" class="w-full bg-white text-black font-vip font-bold py-3 hover:bg-zinc-200 transition-colors tracking-widest text-sm">
+                INGRESAR AL SISTEMA
             </button>
         </form>
     </div>
+
+    <div id="dashboard-screen" class="hidden-screen w-full max-w-6xl p-6 fade-in">
+        <header class="flex justify-between items-end border-b border-zinc-800 pb-6 mb-8">
+            <div>
+                <h2 class="font-vip text-2xl text-white tracking-widest">CATÁLOGO DE ACTIVOS</h2>
+                <p class="text-xs text-zinc-500 mt-1">Nivel de Seguridad: MÁXIMO // Actualizado: <span id="current-date"></span></p>
+            </div>
+            <button onclick="logout()" class="text-xs text-zinc-600 hover:text-white transition-colors uppercase tracking-widest">
+                [ Cerrar Sesión Segura ]
+            </button>
+        </header>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="text-xs text-zinc-500 border-b border-zinc-800 font-vip tracking-wider">
+                        <th class="p-4 font-normal">ID LEGION</th>
+                        <th class="p-4 font-normal">PROTOCOLO / SERVICIO</th>
+                        <th class="p-4 font-normal text-right">INVERSIÓN (x1000)</th>
+                        <th class="p-4 font-normal text-right">RANGO (MIN - MAX)</th>
+                        <th class="p-4 font-normal text-center">ACCIÓN</th>
+                    </tr>
+                </thead>
+                <tbody id="services-table-body" class="text-sm text-zinc-300">
+                    </tbody>
+            </table>
+        </div>
+
+        <footer class="mt-20 border-t border-zinc-900 pt-6 text-center">
+            <p class="text-[10px] text-zinc-700 uppercase tracking-widest">
+                Confidencialidad Estricta. El uso no autorizado de esta plataforma será monitoreado.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // 1. CONFIGURACIÓN DE SEGURIDAD (SIMULADA)
+        // En un entorno real, esto iría contra una base de datos.
+        const VALID_USER = "admin"; 
+        const VALID_PASS = "vip2025"; 
+
+        // 2. DATOS DE LOS SERVICIOS (Tu JSON)
+        const services = [
+            { id: 410, name: "Me gusta USA - Mixto", rate: 2700, min: 30, max: 20000 },
+            { id: 3878, name: "Me gusta USA - Mayormente femeninos", rate: 2900, min: 30, max: 20000 },
+            { id: 417, name: "Me gusta USA + Alcance + Impresiones", rate: 14000, min: 20, max: 5000 },
+            { id: 2326, name: "Me gusta + Alcance + Impresiones", rate: 2300, min: 100, max: 100000 },
+            { id: 390, name: "Me gusta Brasil", rate: 4200, min: 50, max: 5000 },
+            { id: 2055, name: "IMPRESIONES (Foto y Reel)", rate: 397, min: 100, max: 200000 },
+            { id: 2704, name: "Comentarios Positivos [😘💞💐🏵️]", rate: 17000, min: 10, max: 10000 },
+            { id: 5924, name: "Comentarios Negativos [💩👎🏼🤢]", rate: 10000, min: 10, max: 200000 },
+            { id: 5923, name: "Comentarios Negativos [😔🤮💔]", rate: 10000, min: 10, max: 200000 }
+        ];
+
+        // 3. LÓGICA DE LOGIN
+        const loginScreen = document.getElementById('login-screen');
+        const dashboardScreen = document.getElementById('dashboard-screen');
+        const loginForm = document.getElementById('login-form');
+        const errorMsg = document.getElementById('error-msg');
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            if(user === VALID_USER && pass === VALID_PASS) {
+                // Login Exitoso
+                loginScreen.classList.add('hidden-screen');
+                dashboardScreen.classList.remove('hidden-screen');
+                loadServices();
+                document.getElementById('current-date').innerText = new Date().toLocaleDateString();
+            } else {
+                // Error
+                errorMsg.style.opacity = '1';
+                setTimeout(() => errorMsg.style.opacity = '0', 3000);
+            }
+        });
+
+        function logout() {
+            location.reload();
+        }
+
+        // 4. RENDERIZADO DE TABLA
+        function loadServices() {
+            const tbody = document.getElementById('services-table-body');
+            tbody.innerHTML = ''; // Limpiar
+
+            services.forEach(service => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-zinc-800/50 hover:bg-zinc-900 transition-colors group";
+                
+                tr.innerHTML = `
+                    <td class="p-4 font-mono text-zinc-500 text-xs">${service.id}</td>
+                    <td class="p-4 font-medium text-white">${service.name}</td>
+                    <td class="p-4 text-right font-mono text-zinc-400">$${service.rate.toLocaleString()}</td>
+                    <td class="p-4 text-right font-mono text-xs text-zinc-500">${service.min.toLocaleString()} - ${service.max.toLocaleString()}</td>
+                    <td class="p-4 text-center">
+                        <button class="px-3 py-1 border border-zinc-600 text-[10px] uppercase text-zinc-400 hover:bg-white hover:text-black hover:border-white transition-all tracking-wider">
+                            Solicitar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
 </body>
 </html>
