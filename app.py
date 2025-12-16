@@ -13,17 +13,17 @@ LEGION_URL = "https://legionsmm.com/api/v2"
 sdk = mercadopago.SDK(MP_ACCESS_TOKEN)
 
 # BASE DE DATOS DE SERVICIOS
-# (Los nombres aquí saldrán en el ticket de MercadoPago)
+# (Títulos originales restaurados)
 SERVICES_RATES = {
-    "410":  {"rate": 2700, "name": "Likes USA - Mixto (Alta Calidad)"},
-    "3878": {"rate": 2900, "name": "Likes USA - Femeninos (VIP)"},
-    "417":  {"rate": 14000,"name": "Pack Power: Likes + Alcance + Visitas"},
-    "2326": {"rate": 2300, "name": "Likes + Alcance + Impresiones"},
-    "390":  {"rate": 4200, "name": "Likes Brasil (Reales)"},
-    "2055": {"rate": 397,  "name": "Impresiones (Foto/Reel)"},
-    "2704": {"rate": 17000,"name": "Comentarios Positivos (Emojis)"},
-    "5924": {"rate": 10000,"name": "Comentarios Negativos (Hate Soft)"},
-    "5923": {"rate": 10000,"name": "Comentarios Negativos (Hate Hard)"}
+    "410":  {"rate": 2700, "name": "Me gusta USA - Mixto -"},
+    "3878": {"rate": 2900, "name": "Me gusta USA - Mayormente femeninos"},
+    "417":  {"rate": 14000,"name": "Me gusta USA + Alcance + Impresiones + Visitas al perfil."},
+    "2326": {"rate": 2300, "name": "Me gusta + Alcance + Impresiones."},
+    "390":  {"rate": 4200, "name": "Me gusta Brasil"},
+    "2055": {"rate": 397,  "name": "IMPRESIONES PUBLICACIONES (Foto y Reel)"},
+    "2704": {"rate": 17000,"name": "Comentarios - Emoji positivos mixtos [😘💞💐🏵️😍🤩]"},
+    "5924": {"rate": 10000,"name": "Comentarios - Emoji NEGATIVOS mixtos [💩👎🏼🤢😡🤬]"},
+    "5923": {"rate": 10000,"name": "Comentarios - Emoji NEGATIVOS mixtos [😔🤮💔😈🥵]"}
 }
 
 @app.route('/')
@@ -44,7 +44,6 @@ def comprar():
     calculated_price = (quantity / 1000) * service_info['rate']
     
     # 2. REGLA DEL MÍNIMO ($500 ARS)
-    # Si sale menos de 500, cobramos 500.
     final_price = calculated_price
     if final_price < 500:
         final_price = 500
@@ -63,7 +62,6 @@ def comprar():
             "target_link": insta_link
         },
         "back_urls": {
-            # Cambia esto por tu URL real de Render cuando quieras una página de gracias
             "success": "https://proyectomkt.onrender.com/", 
             "failure": "https://proyectomkt.onrender.com/"
         },
