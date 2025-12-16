@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PORTAL DE SERVICIOS VIP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PORTAL VIP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,95 +11,92 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #e4e4e7; }
         
-        /* Efectos Visuales */
+        /* Glassmorphism robusto para móviles */
         .glass-panel {
-            background: rgba(24, 24, 27, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(24, 24, 27, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .service-card {
-            transition: all 0.3s ease;
-            border-left: 4px solid transparent;
-        }
-        .service-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            transform: translateX(5px);
-        }
-
+        /* Scrollbar oculto pero funcional */
+        .custom-scroll::-webkit-scrollbar { width: 0px; background: transparent; }
+        
         /* Colores de Marca */
-        .brand-instagram { border-left-color: #d946ef; } /* Fucsia */
-        .brand-facebook { border-left-color: #3b82f6; } /* Azul */
-        .brand-generic { border-left-color: #71717a; } /* Gris */
+        .brand-instagram { border-left: 4px solid #d946ef; }
+        .brand-facebook { border-left: 4px solid #3b82f6; }
+        .brand-generic { border-left: 4px solid #71717a; }
 
         .text-instagram { color: #d946ef; }
         .text-facebook { color: #60a5fa; }
         
-        /* Utilidades */
+        /* Utilidades Mobile */
+        .input-vip { font-size: 16px; } /* Evita zoom en iOS */
         .input-vip:focus { border-color: #a1a1aa; outline: none; box-shadow: 0 0 0 2px rgba(255,255,255,0.1); }
         .hidden-vip { display: none !important; }
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="h-screen flex flex-col items-center justify-center overflow-hidden relative bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center">
+<body class="h-[100dvh] w-full flex flex-col items-center justify-center overflow-hidden relative bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center">
     
-    <div class="absolute inset-0 bg-black/90"></div>
+    <div class="absolute inset-0 bg-black/90 z-0"></div>
 
-    <div id="login-screen" class="w-full max-w-sm p-8 glass-panel rounded-2xl shadow-2xl fade-in z-20 relative">
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/10 mb-4">
-                <i class="fa-solid fa-user-secret text-white text-xl"></i>
+    <div id="login-screen" class="w-[90%] max-w-sm p-6 md:p-8 glass-panel rounded-2xl shadow-2xl fade-in z-20 relative">
+        <div class="text-center mb-6 md:mb-8">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/10 mb-4 ring-1 ring-white/20">
+                <i class="fa-solid fa-user-shield text-white text-xl"></i>
             </div>
-            <h1 class="text-2xl font-bold text-white tracking-tight">ACCESO PRIVADO</h1>
-            <p class="text-xs text-zinc-500 uppercase tracking-widest mt-2">Identifíquese</p>
+            <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">ACCESO PRIVADO</h1>
+            <p class="text-xs text-zinc-500 uppercase tracking-widest mt-2">Sistema Automatizado</p>
         </div>
         <form id="login-form" class="space-y-4">
-            <input type="text" id="username" class="w-full bg-black/50 border border-zinc-700 text-white p-3 rounded-lg text-sm input-vip text-center" placeholder="USUARIO">
-            <input type="password" id="password" class="w-full bg-black/50 border border-zinc-700 text-white p-3 rounded-lg text-sm input-vip text-center" placeholder="CONTRASEÑA">
-            <div id="error-msg" class="text-red-400 text-xs text-center h-4 opacity-0 transition-opacity font-medium">Acceso denegado</div>
-            <button type="submit" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-zinc-200 transition-colors text-sm uppercase tracking-wide">
-                Ingresar
+            <input type="text" id="username" class="w-full bg-black/50 border border-zinc-700 text-white p-3.5 rounded-xl text-base input-vip text-center placeholder-zinc-600" placeholder="ID Agente">
+            <input type="password" id="password" class="w-full bg-black/50 border border-zinc-700 text-white p-3.5 rounded-xl text-base input-vip text-center placeholder-zinc-600" placeholder="Clave de Acceso">
+            <div id="error-msg" class="text-red-400 text-xs text-center h-4 opacity-0 transition-opacity font-medium">Credenciales incorrectas</div>
+            <button type="submit" class="w-full bg-white text-black font-bold py-3.5 rounded-xl hover:bg-zinc-200 active:scale-95 transition-all text-sm uppercase tracking-wide shadow-lg shadow-white/10">
+                Ingresar al Sistema
             </button>
         </form>
     </div>
 
-    <div id="dashboard-screen" class="hidden-vip w-full h-full flex flex-col p-4 md:p-8 fade-in relative z-10 max-w-5xl mx-auto">
-        <header class="flex justify-between items-center mb-6">
+    <div id="dashboard-screen" class="hidden-vip w-full h-full flex-col p-4 md:p-8 fade-in relative z-10 max-w-7xl mx-auto">
+        <header class="flex justify-between items-center mb-6 flex-shrink-0">
             <div>
-                <h2 class="text-2xl font-bold text-white">Servicios Disponibles</h2>
-                <p class="text-xs text-zinc-400 mt-1">Seleccione una plataforma para comenzar</p>
+                <h2 class="text-lg md:text-2xl font-bold text-white">Catálogo</h2>
+                <p class="text-[10px] md:text-xs text-zinc-400 mt-0.5">Estado: <span class="text-green-500">● Online</span></p>
             </div>
-            <button onclick="location.reload()" class="text-xs bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-full transition-colors border border-white/10">
+            <button onclick="location.reload()" class="text-xs bg-white/5 hover:bg-white/10 active:bg-white/20 text-white px-3 py-2 md:px-4 md:py-2 rounded-full transition-colors border border-white/10 backdrop-blur-sm">
                 <i class="fa-solid fa-power-off mr-1"></i> Salir
             </button>
         </header>
 
-        <div class="flex-grow overflow-y-auto pr-2 custom-scroll">
-            <div id="services-grid" class="grid grid-cols-1 gap-3">
+        <div class="flex-grow overflow-y-auto custom-scroll pb-20 md:pb-0">
+            <div id="services-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 </div>
         </div>
     </div>
 
-    <div id="order-modal" class="hidden-vip fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md fade-in p-4">
-        <div class="w-full max-w-lg glass-panel rounded-2xl p-6 md:p-8 relative shadow-2xl border border-zinc-800">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
+    <div id="order-modal" class="hidden-vip fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md fade-in p-4 overflow-y-auto">
+        <div class="w-full max-w-lg glass-panel rounded-2xl p-5 md:p-8 relative shadow-2xl border border-zinc-800 my-auto">
+            
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white p-2 z-10">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
             
-            <h3 class="text-lg font-bold text-white mb-1">Configurar Pedido</h3>
-            <p class="text-xs text-zinc-500 uppercase tracking-wider mb-6" id="modal-category">Plataforma</p>
+            <h3 class="text-lg font-bold text-white mb-0.5">Nuevo Pedido</h3>
+            <p class="text-[10px] md:text-xs text-zinc-500 uppercase tracking-wider mb-6" id="modal-category">...</p>
             
             <form action="/comprar" method="POST" class="space-y-5">
                 <input type="hidden" name="service_id" id="hidden-service-id">
                 
                 <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                    <div class="text-sm text-zinc-400 mb-1">Servicio Seleccionado:</div>
-                    <div id="modal-service-name" class="text-white font-semibold text-base leading-tight"></div>
+                    <div class="text-xs text-zinc-400 mb-1 uppercase tracking-wide">Servicio</div>
+                    <div id="modal-service-name" class="text-white font-semibold text-sm md:text-base leading-snug"></div>
                     
-                    <div class="mt-3 pt-3 border-t border-white/5 flex justify-between text-xs font-mono text-zinc-500">
-                        <span><i class="fa-solid fa-tag mr-1"></i>Precio x 1000: <span class="text-zinc-300" id="modal-rate"></span></span>
-                        <span><i class="fa-solid fa-ruler-combined mr-1"></i>Límites: <span class="text-zinc-300" id="modal-limits"></span></span>
+                    <div class="mt-3 pt-3 border-t border-white/5 flex justify-between text-[10px] md:text-xs font-mono text-zinc-500">
+                        <span><i class="fa-solid fa-coins mr-1"></i>x1000: $<span class="text-zinc-300" id="modal-rate"></span></span>
+                        <span><i class="fa-solid fa-gauge-high mr-1"></i>Lím: <span class="text-zinc-300" id="modal-limits"></span></span>
                     </div>
                 </div>
 
@@ -107,27 +104,28 @@
                     <label class="block text-xs font-bold uppercase text-zinc-500 mb-2 ml-1">Enlace (Link)</label>
                     <div class="relative">
                         <span class="absolute left-4 top-3.5 text-zinc-500"><i class="fa-solid fa-link"></i></span>
-                        <input type="text" name="link" required class="w-full bg-black/40 border border-zinc-700 text-white pl-10 pr-4 py-3 rounded-xl text-sm focus:border-white transition-colors" placeholder="Pegar enlace aquí...">
+                        <input type="text" name="link" required class="w-full bg-black/40 border border-zinc-700 text-white pl-10 pr-4 py-3.5 rounded-xl text-base input-vip focus:border-white transition-colors placeholder-zinc-700" placeholder="Pegar URL aquí...">
                     </div>
                     <p class="text-[10px] text-zinc-500 mt-2 ml-1">
-                        <i class="fa-solid fa-circle-info mr-1"></i>Asegúrese de que el perfil sea público.
+                        <i class="fa-solid fa-circle-exclamation text-yellow-600 mr-1"></i>Perfil debe ser público.
                     </p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3 md:gap-4">
                     <div>
                         <label class="block text-xs font-bold uppercase text-zinc-500 mb-2 ml-1">Cantidad</label>
-                        <input type="number" name="quantity" id="order-quantity" oninput="calculateTotal()" required class="w-full bg-black/40 border border-zinc-700 text-white p-3 rounded-xl text-sm focus:border-white transition-colors" placeholder="0">
+                        <input type="number" name="quantity" id="order-quantity" oninput="calculateTotal()" required class="w-full bg-black/40 border border-zinc-700 text-white p-3.5 rounded-xl text-base input-vip focus:border-white transition-colors" placeholder="0">
                     </div>
-                    <div class="bg-white/10 border border-white/5 p-3 rounded-xl flex flex-col justify-center items-end">
-                        <span class="text-[10px] text-zinc-400 uppercase">A pagar hoy</span>
-                        <span class="text-2xl text-white font-bold tracking-tight" id="modal-total">$0.00</span>
+                    <div class="bg-gradient-to-br from-white/10 to-white/5 border border-white/5 p-3 rounded-xl flex flex-col justify-center items-end">
+                        <span class="text-[9px] text-zinc-400 uppercase">Total Estimado</span>
+                        <span class="text-xl md:text-2xl text-white font-bold tracking-tight" id="modal-total">$0.00</span>
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-zinc-200 transition-transform active:scale-95 mt-2">
-                    Continuar al Pago <i class="fa-solid fa-arrow-right ml-2"></i>
+                <button type="submit" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-zinc-200 active:scale-95 transition-all mt-2 shadow-lg shadow-white/5 flex items-center justify-center gap-2">
+                    <span>Ir a Pagar</span> <i class="fa-solid fa-arrow-right"></i>
                 </button>
+                <p class="text-[9px] text-center text-zinc-600">Pagos procesados de forma segura vía MercadoPago</p>
             </form>
         </div>
     </div>
@@ -137,7 +135,7 @@
         const services = {{ services | tojson }};
         let currentService = null;
 
-        // --- LÓGICA DE LOGIN ---
+        // --- LOGIN ---
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             if(document.getElementById('username').value === CREDENTIALS.user && 
@@ -148,29 +146,27 @@
                 renderServices();
             } else {
                 document.getElementById('error-msg').style.opacity = '1';
+                setTimeout(() => document.getElementById('error-msg').style.opacity = '0', 2000);
             }
         });
 
-        // --- RENDERIZADO INTELIGENTE ---
+        // --- RENDERIZADO (Adaptable) ---
         function renderServices() {
             const grid = document.getElementById('services-grid');
             grid.innerHTML = '';
 
             services.forEach(s => {
-                // DETECCIÓN DE PLATAFORMA
                 let name = s.name;
                 let platformClass = 'brand-generic';
-                let iconHtml = '<i class="fa-solid fa-bolt text-zinc-500 text-xl"></i>';
-                let platformName = 'General';
+                let iconHtml = '<i class="fa-solid fa-bolt text-zinc-400 text-xl"></i>';
+                let platformName = 'Servicio';
 
-                // Lógica para Instagram
                 if (name.toUpperCase().includes('INSTAGRAM')) {
                     platformClass = 'brand-instagram';
                     iconHtml = '<i class="fa-brands fa-instagram text-instagram text-2xl"></i>';
                     platformName = 'Instagram';
-                    name = name.replace(/INSTAGRAM - /gi, '').replace(/INSTAGRAM/gi, '').trim(); // Limpiar nombre
+                    name = name.replace(/INSTAGRAM - /gi, '').replace(/INSTAGRAM/gi, '').trim();
                 }
-                // Lógica para Facebook
                 else if (name.toUpperCase().includes('FACEBOOK')) {
                     platformClass = 'brand-facebook';
                     iconHtml = '<i class="fa-brands fa-facebook text-facebook text-2xl"></i>';
@@ -178,24 +174,22 @@
                     name = name.replace(/FACEBOOK - /gi, '').replace(/FACEBOOK/gi, '').trim();
                 }
 
-                // Generar la tarjeta HTML
                 const card = document.createElement('div');
-                card.className = `service-card glass-panel p-4 rounded-xl flex items-center justify-between cursor-pointer ${platformClass}`;
+                card.className = `glass-panel p-4 md:p-5 rounded-xl flex items-center justify-between cursor-pointer active:scale-[0.98] transition-all ${platformClass}`;
                 card.onclick = () => openModal(s.id, name, platformName);
 
                 card.innerHTML = `
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center border border-white/5">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/40 flex items-center justify-center border border-white/5 shadow-inner">
                             ${iconHtml}
                         </div>
-                        <div>
-                            <h3 class="font-semibold text-white text-sm md:text-base">${name}</h3>
-                            <span class="text-[10px] text-zinc-500 uppercase tracking-wider bg-white/5 px-2 py-1 rounded-md mt-1 inline-block">
+                        <div class="flex-1 min-w-0"> <h3 class="font-semibold text-white text-sm leading-tight mb-1 truncate">${name}</h3>
+                            <span class="text-[10px] text-zinc-400 uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded-md inline-block">
                                 ${platformName}
                             </span>
                         </div>
                     </div>
-                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-zinc-400 group-hover:bg-white group-hover:text-black transition-colors">
+                    <div class="ml-2 w-8 h-8 rounded-full flex items-center justify-center text-zinc-500">
                         <i class="fa-solid fa-chevron-right text-xs"></i>
                     </div>
                 `;
@@ -203,24 +197,19 @@
             });
         }
 
-        // --- LÓGICA DEL MODAL ---
+        // --- MODAL ---
         function openModal(id, cleanName, platform) {
             currentService = services.find(s => s.id === id);
             
-            // Llenar datos visuales
             document.getElementById('modal-category').innerText = platform;
             document.getElementById('modal-service-name').innerText = cleanName;
-            
-            // Aquí mostramos los datos técnicos que estaban ocultos
-            document.getElementById('modal-rate').innerText = `$${currentService.rate.toLocaleString()}`;
-            document.getElementById('modal-limits').innerText = `${currentService.min} - ${currentService.max}`;
+            document.getElementById('modal-rate').innerText = currentService.rate.toLocaleString();
+            document.getElementById('modal-limits').innerText = `${currentService.min/1000}k - ${currentService.max/1000}k`;
             
             document.getElementById('modal-total').innerText = '$0.00';
             document.getElementById('hidden-service-id').value = currentService.id;
             
             const inputQty = document.getElementById('order-quantity');
-            inputQty.min = currentService.min;
-            inputQty.max = currentService.max;
             inputQty.value = '';
 
             document.getElementById('order-modal').classList.remove('hidden-vip');
@@ -236,7 +225,7 @@
             if(qty && currentService) {
                 let total = (qty / 1000) * currentService.rate;
                 if (total < 500) total = 500;
-                document.getElementById('modal-total').innerText = `$${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                document.getElementById('modal-total').innerText = `$${total.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
             } else {
                 document.getElementById('modal-total').innerText = '$0.00';
             }
