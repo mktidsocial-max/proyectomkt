@@ -2,64 +2,120 @@
   {
     "id": 410,
     "name": "INSTAGRAM - Me gusta USA - Mixto -",
-    "rate": 2700,
+    "rate": 10200,
     "min": 30,
     "max": 20000
   },
   {
     "id": 3878,
     "name": "INSTAGRAM - Me gusta USA - Mayormente femeninos",
-    "rate": 2900,
+    "rate": 15000,
     "min": 30,
     "max": 20000
   },
   {
     "id": 417,
     "name": "INSTAGRAM - Me gusta USA + Alcance + Impresiones + Visitas al perfil.",
-    "rate": 14000,
+    "rate": 17000,
     "min": 20,
     "max": 5000
   },
   {
     "id": 2326,
-    "name": "INSTAGRAM - Me gusta + Alcance + Impresiones.",
-    "rate": 2300,
+    "name": "INSTAGRAM - Me gusta Mundial + Alcance + Impresiones. ",
+    "rate": 4300,
     "min": 100,
     "max": 100000
   },
   {
     "id": 390,
     "name": "INSTAGRAM - Me gusta Brasil",
-    "rate": 4200,
+    "rate": 10200,
     "min": 50,
     "max": 5000
   },
   {
     "id": 2055,
     "name": "INSTAGRAM - IMPRESIONES PUBLICACIONES (Foto y Reel)",
-    "rate": 397,
+    "rate": 800,
     "min": 100,
     "max": 200000
   },
   {
     "id": 2704,
     "name": "INSTAGRAM - Comentarios - Emoji positivos mixtos [😘💞💐😍🤩]",
-    "rate": 17000,
+    "rate": 20000,
     "min": 10,
     "max": 10000
   },
   {
     "id": 5924,
     "name": "INSTAGRAM - Comentarios - Emoji NEGATIVOS mixtos [💩👎🏼🤢😡🤬]",
-    "rate": 10000,
+    "rate": 15000,
     "min": 10,
     "max": 200000
   },
   {
     "id": 5923,
     "name": "INSTAGRAM - Comentarios - Emoji NEGATIVOS mixtos [😔🤮💔😈🥵]",
-    "rate": 10000,
+    "rate": 15000,
     "min": 10,
     "max": 200000
-  }
+  },
+   {
+    "id": 3076,
+    "name": "FACEBOOK - VIdeo y Reel - Reproducciones",
+    "rate": 4000,
+    "min": 500,
+    "max": 1000000
+  },
+   {
+    "id": 5530,
+    "name": "FACEBOOK - Reacción Me asombra 😲 USA",
+    "rate": 50000,
+    "min": 10,
+    "max": 3000
+  },
+   {
+    "id": 5531,
+    "name": "FACEBOOK - Reacción Me divierte 😂 USA",
+    "rate": 50000,
+    "min": 10,
+    "max": 3000
+  },
+   {
+    "id": 3616,
+    "name": "FACEBOOK - Reacción me enoja 🤬 - BRASIL",
+    "rate": 30000,
+    "min": 10,
+    "max": 500
+  },
+    {
+    "id": 4037,
+    "name": "FACEBOOK - Reacción Me asombra 😲- BRASIL",
+    "rate": 50000,
+    "min": 10,
+    "max": 500
+  },
+  {
+    "id": 4038,
+    "name": "FACEBOOK - Reacción Me divierte 😂- BRASIL",
+    "rate": 50000,
+    "min": 10,
+    "max": 500
+  },
+  {
+    "id": 5902,
+    "name": "FACEBOOK - Reacción Me encanta ❤️- BRASIL",
+    "rate": 50000,
+    "min": 10,
+    "max": 500
+  },
+    {
+    "id": 3980,
+      "name": "FACEBOOK - Me gusta a las publicaciones 👍- MUNDIAL High Quality",
+    "rate": 40000,
+    "min": 50,
+    "max": 5000
+  },
 ]
