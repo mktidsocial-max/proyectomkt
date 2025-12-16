@@ -1,0 +1,65 @@
+[
+  {
+    "id": 410,
+    "name": "INSTAGRAM - Me gusta USA - Mixto -",
+    "rate": 2700,
+    "min": 30,
+    "max": 20000
+  },
+  {
+    "id": 3878,
+    "name": "INSTAGRAM - Me gusta USA - Mayormente femeninos",
+    "rate": 2900,
+    "min": 30,
+    "max": 20000
+  },
+  {
+    "id": 417,
+    "name": "INSTAGRAM - Me gusta USA + Alcance + Impresiones + Visitas al perfil.",
+    "rate": 14000,
+    "min": 20,
+    "max": 5000
+  },
+  {
+    "id": 2326,
+    "name": "INSTAGRAM - Me gusta + Alcance + Impresiones.",
+    "rate": 2300,
+    "min": 100,
+    "max": 100000
+  },
+  {
+    "id": 390,
+    "name": "INSTAGRAM - Me gusta Brasil",
+    "rate": 4200,
+    "min": 50,
+    "max": 5000
+  },
+  {
+    "id": 2055,
+    "name": "INSTAGRAM - IMPRESIONES PUBLICACIONES (Foto y Reel)",
+    "rate": 397,
+    "min": 100,
+    "max": 200000
+  },
+  {
+    "id": 2704,
+    "name": "INSTAGRAM - Comentarios - Emoji positivos mixtos [😘💞💐😍🤩]",
+    "rate": 17000,
+    "min": 10,
+    "max": 10000
+  },
+  {
+    "id": 5924,
+    "name": "INSTAGRAM - Comentarios - Emoji NEGATIVOS mixtos [💩👎🏼🤢😡🤬]",
+    "rate": 10000,
+    "min": 10,
+    "max": 200000
+  },
+  {
+    "id": 5923,
+    "name": "INSTAGRAM - Comentarios - Emoji NEGATIVOS mixtos [😔🤮💔😈🥵]",
+    "rate": 10000,
+    "min": 10,
+    "max": 200000
+  }
+]
