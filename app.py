@@ -58,7 +58,7 @@ def comprar():
             "failure": "https://www.google.com"
         },
         "auto_return": "approved",
-        "notification_url": "https://tu-app-en-render.onrender.com/webhook"
+        "notification_url": "https://proyectomkt.onrender.com/webhook"
     }
 
     preference_response = sdk.preference().create(preference_data)
