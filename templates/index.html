@@ -11,20 +11,20 @@
         body { font-family: 'Inter', sans-serif; background-color: #050505; color: #d4d4d8; }
         .font-vip { font-family: 'Cinzel', serif; }
         .input-vip:focus { border-color: #a1a1aa; box-shadow: 0 0 15px rgba(255, 255, 255, 0.05); outline: none; }
-        .hidden-screen { display: none; }
+        
+        /* Animación suave */
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Scrollbar personalizado oscuro */
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #09090b; }
         ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
     </style>
 </head>
-<body class="h-screen flex flex-col items-center justify-center selection:bg-white selection:text-black overflow-hidden">
+<body class="h-screen flex flex-col items-center justify-center selection:bg-white selection:text-black overflow-hidden relative">
 
-    <div id="login-screen" class="w-full max-w-md p-8 border border-zinc-800 bg-zinc-900/30 backdrop-blur-sm shadow-2xl fade-in relative z-10">
+    <div id="login-screen" class="w-full max-w-md p-8 border border-zinc-800 bg-zinc-900/30 backdrop-blur-sm shadow-2xl fade-in z-20">
         <div class="text-center mb-10">
             <h1 class="font-vip text-3xl text-white tracking-widest mb-2">ACCESO RESTRINGIDO</h1>
             <p class="text-xs text-zinc-500 uppercase tracking-[0.2em]">Solo Personal Autorizado</p>
@@ -41,7 +41,7 @@
         </form>
     </div>
 
-    <div id="dashboard-screen" class="hidden-screen w-full h-full flex flex-col p-6 fade-in relative">
+    <div id="dashboard-screen" style="display: none;" class="w-full h-full flex flex-col p-6 fade-in relative z-10">
         <header class="flex justify-between items-end border-b border-zinc-800 pb-4 mb-4 flex-none">
             <div>
                 <h2 class="font-vip text-xl text-white tracking-widest">CATÁLOGO DE ACTIVOS</h2>
@@ -67,7 +67,7 @@
         </div>
     </div>
 
-    <div id="order-modal" class="hidden-screen fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm fade-in">
+    <div id="order-modal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm fade-in">
         <div class="w-full max-w-lg bg-zinc-900 border border-zinc-700 p-8 shadow-2xl relative">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white">✕</button>
             
@@ -107,7 +107,7 @@
     <script>
         // --- CONFIGURACIÓN ---
         const CREDENTIALS = { user: "admin", pass: "vip2025" };
-        const WA_PHONE = "549XXXXXXXXXX"; // <--- PON TU NUMERO AQUI (Ej: 5491122334455)
+        const WA_PHONE = "5492615555555"; // <--- CAMBIA ESTO POR TU NÚMERO
         
         // --- DATOS ---
         const services = [
@@ -129,8 +129,11 @@
             e.preventDefault();
             if(document.getElementById('username').value === CREDENTIALS.user && 
                document.getElementById('password').value === CREDENTIALS.pass) {
-                document.getElementById('login-screen').classList.add('hidden-screen');
-                document.getElementById('dashboard-screen').classList.remove('hidden-screen');
+                // Ocultar Login
+                document.getElementById('login-screen').style.display = 'none';
+                // Mostrar Dashboard
+                document.getElementById('dashboard-screen').style.display = 'flex';
+                
                 loadServices();
                 document.getElementById('current-date').innerText = new Date().toLocaleDateString();
             } else {
@@ -153,7 +156,7 @@
                         ${s.name} <span class="text-zinc-600 text-[10px] ml-1 uppercase tracking-wider">/ Lote x1000</span>
                     </td>
                     <td class="p-4 text-right font-mono text-zinc-400">$${s.rate.toLocaleString()}</td>
-                    <td class="p-4 text-right font-mono text-xs text-zinc-500">${s.min} - ${s.max/1000}k</td>
+                    <td class="p-4 text-right font-mono text-xs text-zinc-500">${s.min} - ${s.max >= 1000 ? (s.max/1000) + 'k' : s.max}</td>
                     <td class="p-4 text-center">
                         <button onclick="openModal(${s.id})" class="px-4 py-2 border border-zinc-600 text-[10px] uppercase text-zinc-300 hover:bg-white hover:text-black hover:border-white transition-all tracking-widest font-bold">
                             SOLICITAR
@@ -180,11 +183,13 @@
             document.getElementById('order-quantity').value = '';
             document.getElementById('modal-total').innerText = '$0.00';
 
-            document.getElementById('order-modal').classList.remove('hidden-screen');
+            // Mostrar Modal
+            document.getElementById('order-modal').style.display = 'flex';
         }
 
         function closeModal() {
-            document.getElementById('order-modal').classList.add('hidden-screen');
+            // Ocultar Modal
+            document.getElementById('order-modal').style.display = 'none';
         }
 
         function calculateTotal() {
@@ -207,19 +212,14 @@
                 return;
             }
 
-            // Validar Min/Max (Opcional, solo advertencia)
-            if(qty < currentService.min || qty > currentService.max) {
-                if(!confirm(`ATENCIÓN: La cantidad está fuera del rango recomendado (${currentService.min} - ${currentService.max}). ¿Proceder igual?`)) return;
-            }
-
-            // Construir mensaje VIP
-            const msg = `:: NUEVA ORDEN DE SERVICIO ::%0A%0A` +
+            // Construir mensaje
+            const msg = `:: ORDEN DE SERVICIO ::%0A%0A` +
                         `🔹 ID: ${currentService.id}%0A` +
                         `🔹 SERVICIO: ${currentService.name}%0A` +
                         `🔹 CANTIDAD: ${qty}%0A` +
                         `🔹 OBJETIVO: ${link}%0A` +
                         `💰 COSTO ESTIMADO: ${total}%0A%0A` +
-                        `Solicito confirmación inmediata.`;
+                        `Solicito confirmación.`;
 
             window.open(`https://wa.me/${WA_PHONE}?text=${msg}`, '_blank');
             closeModal();
