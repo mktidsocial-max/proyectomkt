@@ -3,97 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA PRIVADO DE GESTIÓN</title>
+    <title>PORTAL DE SERVICIOS VIP</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #d4d4d8; }
-        .font-vip { font-family: 'Cinzel', serif; }
-        .input-vip:focus { border-color: #a1a1aa; box-shadow: 0 0 15px rgba(255, 255, 255, 0.05); outline: none; }
+        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #e4e4e7; }
+        
+        /* Efectos Visuales */
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .service-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        .service-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+
+        /* Colores de Marca */
+        .brand-instagram { border-left-color: #d946ef; } /* Fucsia */
+        .brand-facebook { border-left-color: #3b82f6; } /* Azul */
+        .brand-generic { border-left-color: #71717a; } /* Gris */
+
+        .text-instagram { color: #d946ef; }
+        .text-facebook { color: #60a5fa; }
+        
+        /* Utilidades */
+        .input-vip:focus { border-color: #a1a1aa; outline: none; box-shadow: 0 0 0 2px rgba(255,255,255,0.1); }
         .hidden-vip { display: none !important; }
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="h-screen flex flex-col items-center justify-center selection:bg-white selection:text-black overflow-hidden relative">
+<body class="h-screen flex flex-col items-center justify-center overflow-hidden relative bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center">
+    
+    <div class="absolute inset-0 bg-black/90"></div>
 
-    <div id="login-screen" class="w-full max-w-md p-8 border border-zinc-800 bg-zinc-900/30 backdrop-blur-sm shadow-2xl fade-in z-20">
-        <div class="text-center mb-10">
-            <h1 class="font-vip text-3xl text-white tracking-widest mb-2">ACCESO RESTRINGIDO</h1>
-            <p class="text-xs text-zinc-500 uppercase tracking-[0.2em]">Solo Personal Autorizado</p>
+    <div id="login-screen" class="w-full max-w-sm p-8 glass-panel rounded-2xl shadow-2xl fade-in z-20 relative">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/10 mb-4">
+                <i class="fa-solid fa-user-secret text-white text-xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">ACCESO PRIVADO</h1>
+            <p class="text-xs text-zinc-500 uppercase tracking-widest mt-2">Identifíquese</p>
         </div>
-        <form id="login-form" class="space-y-6">
-            <input type="text" id="username" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip placeholder-zinc-800 text-center" placeholder="ID DE AGENTE">
-            <input type="password" id="password" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip placeholder-zinc-800 text-center" placeholder="CLAVE">
-            <div id="error-msg" class="text-red-900 text-xs text-center h-4 opacity-0 transition-opacity">Credenciales inválidas.</div>
-            <button type="submit" class="w-full bg-white text-black font-vip font-bold py-3 hover:bg-zinc-200 transition-colors tracking-widest text-sm">ENTRAR</button>
+        <form id="login-form" class="space-y-4">
+            <input type="text" id="username" class="w-full bg-black/50 border border-zinc-700 text-white p-3 rounded-lg text-sm input-vip text-center" placeholder="USUARIO">
+            <input type="password" id="password" class="w-full bg-black/50 border border-zinc-700 text-white p-3 rounded-lg text-sm input-vip text-center" placeholder="CONTRASEÑA">
+            <div id="error-msg" class="text-red-400 text-xs text-center h-4 opacity-0 transition-opacity font-medium">Acceso denegado</div>
+            <button type="submit" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-zinc-200 transition-colors text-sm uppercase tracking-wide">
+                Ingresar
+            </button>
         </form>
     </div>
 
-    <div id="dashboard-screen" class="hidden-vip w-full h-full flex flex-col p-6 fade-in relative z-10">
-        <header class="flex justify-between items-end border-b border-zinc-800 pb-4 mb-4 flex-none">
+    <div id="dashboard-screen" class="hidden-vip w-full h-full flex flex-col p-4 md:p-8 fade-in relative z-10 max-w-5xl mx-auto">
+        <header class="flex justify-between items-center mb-6">
             <div>
-                <h2 class="font-vip text-xl text-white tracking-widest">CATÁLOGO DE ACTIVOS</h2>
-                <p class="text-xs text-zinc-500 mt-1">Status: ONLINE // <span id="current-date"></span></p>
+                <h2 class="text-2xl font-bold text-white">Servicios Disponibles</h2>
+                <p class="text-xs text-zinc-400 mt-1">Seleccione una plataforma para comenzar</p>
             </div>
-            <button onclick="location.reload()" class="text-xs text-zinc-600 hover:text-white uppercase">[ Salir ]</button>
+            <button onclick="location.reload()" class="text-xs bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-full transition-colors border border-white/10">
+                <i class="fa-solid fa-power-off mr-1"></i> Salir
+            </button>
         </header>
 
-        <div class="flex-grow overflow-auto">
-            <table class="w-full text-left border-collapse">
-                <thead class="sticky top-0 bg-[#050505] z-10">
-                    <tr class="text-xs text-zinc-500 border-b border-zinc-800 font-vip tracking-wider">
-                        <th class="p-4">ID</th>
-                        <th class="p-4">SERVICIO</th>
-                        <th class="p-4 text-right">PRECIO (x1000)</th>
-                        <th class="p-4 text-right">LÍMITES</th>
-                        <th class="p-4 text-center">ACCIÓN</th>
-                    </tr>
-                </thead>
-                <tbody id="services-table-body" class="text-sm text-zinc-300">
-                    </tbody>
-            </table>
+        <div class="flex-grow overflow-y-auto pr-2 custom-scroll">
+            <div id="services-grid" class="grid grid-cols-1 gap-3">
+                </div>
         </div>
     </div>
 
-    <div id="order-modal" class="hidden-vip fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm fade-in">
-        <div class="w-full max-w-lg bg-zinc-900 border border-zinc-700 p-8 shadow-2xl relative">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white">✕</button>
-            <h3 class="font-vip text-xl text-white mb-6 border-b border-zinc-800 pb-2">CONFIGURAR ORDEN</h3>
+    <div id="order-modal" class="hidden-vip fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md fade-in p-4">
+        <div class="w-full max-w-lg glass-panel rounded-2xl p-6 md:p-8 relative shadow-2xl border border-zinc-800">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
             
-            <form action="/comprar" method="POST" class="space-y-6">
+            <h3 class="text-lg font-bold text-white mb-1">Configurar Pedido</h3>
+            <p class="text-xs text-zinc-500 uppercase tracking-wider mb-6" id="modal-category">Plataforma</p>
+            
+            <form action="/comprar" method="POST" class="space-y-5">
                 <input type="hidden" name="service_id" id="hidden-service-id">
                 
-                <div>
-                    <label class="block text-xs uppercase text-zinc-500 mb-1">Servicio Seleccionado</label>
-                    <div id="modal-service-name" class="text-white font-vip tracking-wide text-lg"></div>
-                    <div class="text-xs text-zinc-400 mt-1 flex justify-between">
-                        <span>Precio base: $<span id="modal-rate"></span></span>
-                        <span class="text-zinc-500" id="modal-limits-text"></span>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                    <div class="text-sm text-zinc-400 mb-1">Servicio Seleccionado:</div>
+                    <div id="modal-service-name" class="text-white font-semibold text-base leading-tight"></div>
+                    
+                    <div class="mt-3 pt-3 border-t border-white/5 flex justify-between text-xs font-mono text-zinc-500">
+                        <span><i class="fa-solid fa-tag mr-1"></i>Precio x 1000: <span class="text-zinc-300" id="modal-rate"></span></span>
+                        <span><i class="fa-solid fa-ruler-combined mr-1"></i>Límites: <span class="text-zinc-300" id="modal-limits"></span></span>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs uppercase text-zinc-500 mb-2">Enlace Objetivo</label>
-                    <input type="text" name="link" required class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip" placeholder="https://instagram.com/p/C...">
-                    <p class="text-[10px] text-yellow-700/80 mt-1 uppercase tracking-wider">⚠️ IMPORTANTE: Usar enlace de la PUBLICACIÓN (Post/Reel), no del perfil.</p>
+                    <label class="block text-xs font-bold uppercase text-zinc-500 mb-2 ml-1">Enlace (Link)</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-3.5 text-zinc-500"><i class="fa-solid fa-link"></i></span>
+                        <input type="text" name="link" required class="w-full bg-black/40 border border-zinc-700 text-white pl-10 pr-4 py-3 rounded-xl text-sm focus:border-white transition-colors" placeholder="Pegar enlace aquí...">
+                    </div>
+                    <p class="text-[10px] text-zinc-500 mt-2 ml-1">
+                        <i class="fa-solid fa-circle-info mr-1"></i>Asegúrese de que el perfil sea público.
+                    </p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs uppercase text-zinc-500 mb-2">Cantidad</label>
-                        <input type="number" name="quantity" id="order-quantity" oninput="calculateTotal()" required class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip" placeholder="0">
+                        <label class="block text-xs font-bold uppercase text-zinc-500 mb-2 ml-1">Cantidad</label>
+                        <input type="number" name="quantity" id="order-quantity" oninput="calculateTotal()" required class="w-full bg-black/40 border border-zinc-700 text-white p-3 rounded-xl text-sm focus:border-white transition-colors" placeholder="0">
                     </div>
-                    <div class="bg-zinc-950 border border-zinc-800 p-3 flex flex-col justify-center items-end">
-                        <span class="text-xs text-zinc-500 uppercase">Total Estimado</span>
-                        <span class="text-xl text-white font-mono" id="modal-total">$0.00</span>
-                        <span class="text-[9px] text-zinc-600 uppercase mt-1">Mínimo x Pedido: $500</span>
+                    <div class="bg-white/10 border border-white/5 p-3 rounded-xl flex flex-col justify-center items-end">
+                        <span class="text-[10px] text-zinc-400 uppercase">A pagar hoy</span>
+                        <span class="text-2xl text-white font-bold tracking-tight" id="modal-total">$0.00</span>
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-white text-black font-vip font-bold py-4 hover:bg-zinc-200 transition-colors tracking-widest mt-4">
-                    IR AL PAGO SEGURO
+                <button type="submit" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-zinc-200 transition-transform active:scale-95 mt-2">
+                    Continuar al Pago <i class="fa-solid fa-arrow-right ml-2"></i>
                 </button>
             </form>
         </div>
@@ -101,14 +134,10 @@
 
     <script>
         const CREDENTIALS = { user: "admin", pass: "vip2025" };
-        
-        // --- AQUÍ OCURRE LA MAGIA ---
-        // Flask inyecta el JSON directamente en esta variable de JS.
         const services = {{ services | tojson }};
-
         let currentService = null;
 
-        // LOGIN
+        // --- LÓGICA DE LOGIN ---
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             if(document.getElementById('username').value === CREDENTIALS.user && 
@@ -116,36 +145,76 @@
                 document.getElementById('login-screen').classList.add('hidden-vip');
                 document.getElementById('dashboard-screen').classList.remove('hidden-vip');
                 document.getElementById('dashboard-screen').style.display = 'flex';
-                loadServices();
-                document.getElementById('current-date').innerText = new Date().toLocaleDateString();
+                renderServices();
             } else {
                 document.getElementById('error-msg').style.opacity = '1';
             }
         });
 
-        function loadServices() {
-            const tbody = document.getElementById('services-table-body');
-            tbody.innerHTML = '';
+        // --- RENDERIZADO INTELIGENTE ---
+        function renderServices() {
+            const grid = document.getElementById('services-grid');
+            grid.innerHTML = '';
+
             services.forEach(s => {
-                tbody.innerHTML += `
-                    <tr class="border-b border-zinc-800/50 hover:bg-zinc-900 transition-colors">
-                        <td class="p-4 font-mono text-zinc-500 text-xs">#${s.id}</td>
-                        <td class="p-4 font-medium text-white">${s.name}</td>
-                        <td class="p-4 text-right font-mono text-zinc-400">$${s.rate.toLocaleString()}</td>
-                        <td class="p-4 text-right font-mono text-xs text-zinc-500">${s.min} - ${s.max}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="openModal(${s.id})" class="px-4 py-2 border border-zinc-600 text-[10px] uppercase text-zinc-300 hover:bg-white hover:text-black hover:border-white transition-all font-bold">SOLICITAR</button>
-                        </td>
-                    </tr>`;
+                // DETECCIÓN DE PLATAFORMA
+                let name = s.name;
+                let platformClass = 'brand-generic';
+                let iconHtml = '<i class="fa-solid fa-bolt text-zinc-500 text-xl"></i>';
+                let platformName = 'General';
+
+                // Lógica para Instagram
+                if (name.toUpperCase().includes('INSTAGRAM')) {
+                    platformClass = 'brand-instagram';
+                    iconHtml = '<i class="fa-brands fa-instagram text-instagram text-2xl"></i>';
+                    platformName = 'Instagram';
+                    name = name.replace(/INSTAGRAM - /gi, '').replace(/INSTAGRAM/gi, '').trim(); // Limpiar nombre
+                }
+                // Lógica para Facebook
+                else if (name.toUpperCase().includes('FACEBOOK')) {
+                    platformClass = 'brand-facebook';
+                    iconHtml = '<i class="fa-brands fa-facebook text-facebook text-2xl"></i>';
+                    platformName = 'Facebook';
+                    name = name.replace(/FACEBOOK - /gi, '').replace(/FACEBOOK/gi, '').trim();
+                }
+
+                // Generar la tarjeta HTML
+                const card = document.createElement('div');
+                card.className = `service-card glass-panel p-4 rounded-xl flex items-center justify-between cursor-pointer ${platformClass}`;
+                card.onclick = () => openModal(s.id, name, platformName);
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center border border-white/5">
+                            ${iconHtml}
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white text-sm md:text-base">${name}</h3>
+                            <span class="text-[10px] text-zinc-500 uppercase tracking-wider bg-white/5 px-2 py-1 rounded-md mt-1 inline-block">
+                                ${platformName}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-zinc-400 group-hover:bg-white group-hover:text-black transition-colors">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </div>
+                `;
+                grid.appendChild(card);
             });
         }
 
-        function openModal(id) {
+        // --- LÓGICA DEL MODAL ---
+        function openModal(id, cleanName, platform) {
             currentService = services.find(s => s.id === id);
             
-            document.getElementById('modal-service-name').innerText = currentService.name;
-            document.getElementById('modal-rate').innerText = currentService.rate;
-            document.getElementById('modal-limits-text').innerText = `Límites: ${currentService.min} mín - ${currentService.max} máx`;
+            // Llenar datos visuales
+            document.getElementById('modal-category').innerText = platform;
+            document.getElementById('modal-service-name').innerText = cleanName;
+            
+            // Aquí mostramos los datos técnicos que estaban ocultos
+            document.getElementById('modal-rate').innerText = `$${currentService.rate.toLocaleString()}`;
+            document.getElementById('modal-limits').innerText = `${currentService.min} - ${currentService.max}`;
+            
             document.getElementById('modal-total').innerText = '$0.00';
             document.getElementById('hidden-service-id').value = currentService.id;
             
