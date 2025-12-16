@@ -11,15 +11,9 @@
         body { font-family: 'Inter', sans-serif; background-color: #050505; color: #d4d4d8; }
         .font-vip { font-family: 'Cinzel', serif; }
         .input-vip:focus { border-color: #a1a1aa; box-shadow: 0 0 15px rgba(255, 255, 255, 0.05); outline: none; }
-        
-        /* Animación suave */
+        .hidden-vip { display: none !important; }
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #09090b; }
-        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
     </style>
 </head>
 <body class="h-screen flex flex-col items-center justify-center selection:bg-white selection:text-black overflow-hidden relative">
@@ -30,35 +24,31 @@
             <p class="text-xs text-zinc-500 uppercase tracking-[0.2em]">Solo Personal Autorizado</p>
         </div>
         <form id="login-form" class="space-y-6">
-            <div>
-                <input type="text" id="username" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip placeholder-zinc-800 text-center tracking-wider" placeholder="ID DE AGENTE">
-            </div>
-            <div>
-                <input type="password" id="password" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip placeholder-zinc-800 text-center tracking-wider" placeholder="CLAVE DE ACCESO">
-            </div>
+            <input type="text" id="username" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip placeholder-zinc-800 text-center" placeholder="ID DE AGENTE">
+            <input type="password" id="password" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip placeholder-zinc-800 text-center" placeholder="CLAVE">
             <div id="error-msg" class="text-red-900 text-xs text-center h-4 opacity-0 transition-opacity">Credenciales inválidas.</div>
             <button type="submit" class="w-full bg-white text-black font-vip font-bold py-3 hover:bg-zinc-200 transition-colors tracking-widest text-sm">ENTRAR</button>
         </form>
     </div>
 
-    <div id="dashboard-screen" style="display: none;" class="w-full h-full flex flex-col p-6 fade-in relative z-10">
+    <div id="dashboard-screen" class="hidden-vip w-full h-full flex flex-col p-6 fade-in relative z-10">
         <header class="flex justify-between items-end border-b border-zinc-800 pb-4 mb-4 flex-none">
             <div>
                 <h2 class="font-vip text-xl text-white tracking-widest">CATÁLOGO DE ACTIVOS</h2>
-                <p class="text-xs text-zinc-500 mt-1">Nivel de Seguridad: MÁXIMO // <span id="current-date"></span></p>
+                <p class="text-xs text-zinc-500 mt-1">Status: ONLINE // <span id="current-date"></span></p>
             </div>
-            <button onclick="logout()" class="text-xs text-zinc-600 hover:text-white uppercase tracking-widest border border-transparent hover:border-zinc-800 px-3 py-1">[ Cerrar Sesión ]</button>
+            <button onclick="location.reload()" class="text-xs text-zinc-600 hover:text-white uppercase">[ Salir ]</button>
         </header>
 
         <div class="flex-grow overflow-auto">
             <table class="w-full text-left border-collapse">
                 <thead class="sticky top-0 bg-[#050505] z-10">
                     <tr class="text-xs text-zinc-500 border-b border-zinc-800 font-vip tracking-wider">
-                        <th class="p-4 font-normal">ID</th>
-                        <th class="p-4 font-normal">SERVICIO</th>
-                        <th class="p-4 font-normal text-right">INVERSIÓN (x1000)</th>
-                        <th class="p-4 font-normal text-right">RANGO</th>
-                        <th class="p-4 font-normal text-center">ACCIÓN</th>
+                        <th class="p-4">ID</th>
+                        <th class="p-4">SERVICIO</th>
+                        <th class="p-4 text-right">PRECIO (x1000)</th>
+                        <th class="p-4 text-right">LÍMITES</th>
+                        <th class="p-4 text-center">ACCIÓN</th>
                     </tr>
                 </thead>
                 <tbody id="services-table-body" class="text-sm text-zinc-300">
@@ -67,129 +57,111 @@
         </div>
     </div>
 
-    <div id="order-modal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm fade-in">
+    <div id="order-modal" class="hidden-vip fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm fade-in">
         <div class="w-full max-w-lg bg-zinc-900 border border-zinc-700 p-8 shadow-2xl relative">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white">✕</button>
+            <h3 class="font-vip text-xl text-white mb-6 border-b border-zinc-800 pb-2">CONFIGURAR ORDEN</h3>
             
-            <h3 class="font-vip text-xl text-white mb-6 border-b border-zinc-800 pb-2">CONFIGURAR ORDEN <span id="modal-id" class="text-zinc-500 text-sm ml-2"></span></h3>
-            
-            <div class="space-y-6">
+            <form action="/comprar" method="POST" class="space-y-6">
+                <input type="hidden" name="service_id" id="hidden-service-id">
+                
                 <div>
-                    <label class="block text-xs uppercase text-zinc-500 mb-1">Servicio Seleccionado</label>
+                    <label class="block text-xs uppercase text-zinc-500 mb-1">Servicio</label>
                     <div id="modal-service-name" class="text-white font-medium text-lg"></div>
-                    <div class="text-xs text-zinc-400 mt-1">Precio base: $<span id="modal-rate"></span> por 1,000</div>
+                    <div class="text-xs text-zinc-400">Precio base: $<span id="modal-rate"></span></div>
                 </div>
-
                 <div>
-                    <label class="block text-xs uppercase text-zinc-500 mb-2">Enlace Objetivo (Link)</label>
-                    <input type="text" id="order-link" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip" placeholder="https://instagram.com/...">
+                    <input type="text" name="link" required class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip" placeholder="Enlace (Link)">
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs uppercase text-zinc-500 mb-2">Cantidad</label>
-                        <input type="number" id="order-quantity" oninput="calculateTotal()" class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip" placeholder="0">
-                        <p class="text-[10px] text-zinc-500 mt-1">Mín: <span id="modal-min"></span> - Máx: <span id="modal-max"></span></p>
-                    </div>
+                    <input type="number" name="quantity" id="order-quantity" oninput="calculateTotal()" required class="w-full bg-black border border-zinc-700 text-white p-3 text-sm input-vip" placeholder="Cantidad">
                     <div class="bg-zinc-950 border border-zinc-800 p-3 flex flex-col justify-center items-end">
-                        <span class="text-xs text-zinc-500 uppercase">Costo Estimado</span>
+                        <span class="text-xs text-zinc-500 uppercase">Total Estimado</span>
                         <span class="text-xl text-white font-mono" id="modal-total">$0.00</span>
                     </div>
                 </div>
-
-                <button onclick="submitOrder()" class="w-full bg-white text-black font-vip font-bold py-4 hover:bg-zinc-200 transition-colors tracking-widest mt-4">
-                    CONFIRMAR & ENVIAR
+                <button type="submit" class="w-full bg-white text-black font-vip font-bold py-4 hover:bg-zinc-200 transition-colors tracking-widest mt-4">
+                    IR AL PAGO
                 </button>
-            </div>
+            </form>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURACIÓN ---
         const CREDENTIALS = { user: "admin", pass: "vip2025" };
-        const WA_PHONE = "5492615555555"; // <--- CAMBIA ESTO POR TU NÚMERO
         
-        // --- DATOS ---
+        // DATOS (Deben coincidir con los IDs en app.py)
         const services = [
-            { id: 410, name: "Me gusta USA - Mixto", rate: 2700, min: 30, max: 20000 },
-            { id: 3878, name: "Me gusta USA - Mayormente femeninos", rate: 2900, min: 30, max: 20000 },
-            { id: 417, name: "Me gusta USA + Alcance + Impresiones + Visitas", rate: 14000, min: 20, max: 5000 },
-            { id: 2326, name: "Me gusta + Alcance + Impresiones", rate: 2300, min: 100, max: 100000 },
-            { id: 390, name: "Me gusta Brasil", rate: 4200, min: 50, max: 5000 },
-            { id: 2055, name: "IMPRESIONES (Foto y Reel)", rate: 397, min: 100, max: 200000 },
-            { id: 2704, name: "Comentarios Positivos [😘💞💐🏵️]", rate: 17000, min: 10, max: 10000 },
-            { id: 5924, name: "Comentarios Negativos [💩👎🏼🤢]", rate: 10000, min: 10, max: 200000 },
-            { id: 5923, name: "Comentarios Negativos [😔🤮💔]", rate: 10000, min: 10, max: 200000 }
+            { id: 410, name: "Likes USA - Mixto", rate: 2700, min: 30, max: 20000 },
+            { id: 3878, name: "Likes USA - Femeninos", rate: 2900, min: 30, max: 20000 },
+            { id: 417, name: "Likes USA + Alcance", rate: 14000, min: 20, max: 5000 },
+            { id: 2326, name: "Likes + Alcance + Impr.", rate: 2300, min: 100, max: 100000 },
+            { id: 390, name: "Likes Brasil", rate: 4200, min: 50, max: 5000 },
+            { id: 2055, name: "Impresiones", rate: 397, min: 100, max: 200000 },
+            { id: 2704, name: "Comentarios Positivos", rate: 17000, min: 10, max: 10000 },
+            { id: 5924, name: "Comentarios Negativos 1", rate: 10000, min: 10, max: 200000 },
+            { id: 5923, name: "Comentarios Negativos 2", rate: 10000, min: 10, max: 200000 }
         ];
 
         let currentService = null;
 
-        // --- LOGIN ---
+        // LOGIN
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             if(document.getElementById('username').value === CREDENTIALS.user && 
                document.getElementById('password').value === CREDENTIALS.pass) {
-                // Ocultar Login
-                document.getElementById('login-screen').style.display = 'none';
-                // Mostrar Dashboard
+                document.getElementById('login-screen').classList.add('hidden-vip');
+                document.getElementById('dashboard-screen').classList.remove('hidden-vip');
                 document.getElementById('dashboard-screen').style.display = 'flex';
-                
                 loadServices();
                 document.getElementById('current-date').innerText = new Date().toLocaleDateString();
             } else {
-                const err = document.getElementById('error-msg');
-                err.style.opacity = '1';
-                setTimeout(() => err.style.opacity = '0', 3000);
+                document.getElementById('error-msg').style.opacity = '1';
             }
         });
 
-        // --- TABLA ---
+        // TABLA
         function loadServices() {
             const tbody = document.getElementById('services-table-body');
             tbody.innerHTML = '';
             services.forEach(s => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-zinc-800/50 hover:bg-zinc-900 transition-colors group";
-                tr.innerHTML = `
-                    <td class="p-4 font-mono text-zinc-500 text-xs">#${s.id}</td>
-                    <td class="p-4 font-medium text-white">
-                        ${s.name} <span class="text-zinc-600 text-[10px] ml-1 uppercase tracking-wider">/ Lote x1000</span>
-                    </td>
-                    <td class="p-4 text-right font-mono text-zinc-400">$${s.rate.toLocaleString()}</td>
-                    <td class="p-4 text-right font-mono text-xs text-zinc-500">${s.min} - ${s.max >= 1000 ? (s.max/1000) + 'k' : s.max}</td>
-                    <td class="p-4 text-center">
-                        <button onclick="openModal(${s.id})" class="px-4 py-2 border border-zinc-600 text-[10px] uppercase text-zinc-300 hover:bg-white hover:text-black hover:border-white transition-all tracking-widest font-bold">
-                            SOLICITAR
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+                tbody.innerHTML += `
+                    <tr class="border-b border-zinc-800/50 hover:bg-zinc-900 transition-colors">
+                        <td class="p-4 font-mono text-zinc-500 text-xs">#${s.id}</td>
+                        <td class="p-4 font-medium text-white">${s.name}</td>
+                        <td class="p-4 text-right font-mono text-zinc-400">$${s.rate.toLocaleString()}</td>
+                        <td class="p-4 text-right font-mono text-xs text-zinc-500">${s.min} - ${s.max}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="openModal(${s.id})" class="px-4 py-2 border border-zinc-600 text-[10px] uppercase text-zinc-300 hover:bg-white hover:text-black hover:border-white transition-all font-bold">SOLICITAR</button>
+                        </td>
+                    </tr>`;
             });
         }
 
-        // --- MODAL LOGIC ---
+        // MODAL
         function openModal(id) {
             currentService = services.find(s => s.id === id);
-            if(!currentService) return;
-
-            document.getElementById('modal-id').innerText = `// ID: ${currentService.id}`;
+            
+            // Llenar datos visuales
             document.getElementById('modal-service-name').innerText = currentService.name;
             document.getElementById('modal-rate').innerText = currentService.rate;
-            document.getElementById('modal-min').innerText = currentService.min;
-            document.getElementById('modal-max').innerText = currentService.max;
-            
-            // Reset fields
-            document.getElementById('order-link').value = '';
-            document.getElementById('order-quantity').value = '';
             document.getElementById('modal-total').innerText = '$0.00';
+            
+            // Llenar el ID oculto que se envía a Python
+            document.getElementById('hidden-service-id').value = currentService.id;
+            
+            // Configurar límites en el input (opcional visualmente)
+            const inputQty = document.getElementById('order-quantity');
+            inputQty.min = currentService.min;
+            inputQty.max = currentService.max;
+            inputQty.value = '';
 
-            // Mostrar Modal
+            document.getElementById('order-modal').classList.remove('hidden-vip');
             document.getElementById('order-modal').style.display = 'flex';
         }
 
         function closeModal() {
-            // Ocultar Modal
-            document.getElementById('order-modal').style.display = 'none';
+            document.getElementById('order-modal').classList.add('hidden-vip');
         }
 
         function calculateTotal() {
@@ -197,35 +169,8 @@
             if(qty && currentService) {
                 const total = (qty / 1000) * currentService.rate;
                 document.getElementById('modal-total').innerText = `$${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            } else {
-                document.getElementById('modal-total').innerText = '$0.00';
             }
         }
-
-        function submitOrder() {
-            const link = document.getElementById('order-link').value;
-            const qty = document.getElementById('order-quantity').value;
-            const total = document.getElementById('modal-total').innerText;
-
-            if(!link || !qty) {
-                alert("INFORMACIÓN INCOMPLETA: Se requieren Link y Cantidad.");
-                return;
-            }
-
-            // Construir mensaje
-            const msg = `:: ORDEN DE SERVICIO ::%0A%0A` +
-                        `🔹 ID: ${currentService.id}%0A` +
-                        `🔹 SERVICIO: ${currentService.name}%0A` +
-                        `🔹 CANTIDAD: ${qty}%0A` +
-                        `🔹 OBJETIVO: ${link}%0A` +
-                        `💰 COSTO ESTIMADO: ${total}%0A%0A` +
-                        `Solicito confirmación.`;
-
-            window.open(`https://wa.me/${WA_PHONE}?text=${msg}`, '_blank');
-            closeModal();
-        }
-
-        function logout() { location.reload(); }
     </script>
 </body>
 </html>
