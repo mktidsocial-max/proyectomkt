@@ -102,18 +102,9 @@
     <script>
         const CREDENTIALS = { user: "admin", pass: "vip2025" };
         
-        // DATOS VISUALES (Restaurados originales)
-        const services = [
-            { id: 410, name: "Me gusta USA - Mixto -", rate: 2700, min: 30, max: 20000 },
-            { id: 3878, name: "Me gusta USA - Mayormente femeninos", rate: 2900, min: 30, max: 20000 },
-            { id: 417, name: "Me gusta USA + Alcance + Impresiones + Visitas al perfil.", rate: 14000, min: 20, max: 5000 },
-            { id: 2326, name: "Me gusta + Alcance + Impresiones.", rate: 2300, min: 100, max: 100000 },
-            { id: 390, name: "Me gusta Brasil", rate: 4200, min: 50, max: 5000 },
-            { id: 2055, name: "IMPRESIONES PUBLICACIONES (Foto y Reel)", rate: 397, min: 100, max: 200000 },
-            { id: 2704, name: "Comentarios - Emoji positivos mixtos [😘💞💐🏵️😍🤩]", rate: 17000, min: 10, max: 10000 },
-            { id: 5924, name: "Comentarios - Emoji NEGATIVOS mixtos [💩👎🏼🤢😡🤬]", rate: 10000, min: 10, max: 200000 },
-            { id: 5923, name: "Comentarios - Emoji NEGATIVOS mixtos [😔🤮💔😈🥵]", rate: 10000, min: 10, max: 200000 }
-        ];
+        // --- AQUÍ OCURRE LA MAGIA ---
+        // Flask inyecta el JSON directamente en esta variable de JS.
+        const services = {{ services | tojson }};
 
         let currentService = null;
 
@@ -154,10 +145,7 @@
             
             document.getElementById('modal-service-name').innerText = currentService.name;
             document.getElementById('modal-rate').innerText = currentService.rate;
-            
-            // Inyectar texto de Límites en el Modal
             document.getElementById('modal-limits-text').innerText = `Límites: ${currentService.min} mín - ${currentService.max} máx`;
-            
             document.getElementById('modal-total').innerText = '$0.00';
             document.getElementById('hidden-service-id').value = currentService.id;
             
@@ -178,7 +166,6 @@
             const qty = document.getElementById('order-quantity').value;
             if(qty && currentService) {
                 let total = (qty / 1000) * currentService.rate;
-                // Muestra visual del mínimo
                 if (total < 500) total = 500;
                 document.getElementById('modal-total').innerText = `$${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             } else {
