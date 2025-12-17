@@ -4,14 +4,15 @@ import requests
 import instaloader
 import mercadopago
 import random
+from datetime import datetime
+from itertools import islice 
 from flask import Flask, request, render_template, jsonify, redirect, url_for, session
 
 app = Flask(__name__)
 
 # --- SEGURIDAD ---
-# Necesario para guardar la sesión del usuario logueado
 app.secret_key = os.urandom(24) 
-ADMIN_PASSWORD = "vip2025" # <--- TU CONTRASEÑA PARA ENTRAR AL BOT
+ADMIN_PASSWORD = "vip2025" 
 
 # --- CONFIGURACIÓN ---
 MP_ACCESS_TOKEN = os.environ.get("MP_ACCESS_TOKEN")
@@ -20,7 +21,7 @@ LEGION_URL = "https://legionsmm.com/api/v2"
 
 sdk = mercadopago.SDK(MP_ACCESS_TOKEN)
 
-# --- TUS IDs DE ESTRATEGIA ---
+# --- IDs DE ESTRATEGIA ---
 STRATEGY_IDS = {
     "likes": 410,    
     "views": 5559,   
@@ -36,6 +37,20 @@ def load_json(filename):
 
 def save_json(filename, data):
     with open(filename, 'w', encoding='utf-8') as f: json.dump(data, f, indent=2)
+
+# --- SISTEMA DE LOGS ---
+def registrar_log(usuario, link, detalles):
+    logs = load_json('logs.json')
+    nuevo_log = {
+        "fecha": datetime.now().strftime("%d/%m %H:%M"),
+        "usuario": usuario,
+        "link": link,
+        "accion": detalles
+    }
+    # Guardamos el más nuevo arriba
+    logs.insert(0, nuevo_log)
+    # Mantenemos solo los últimos 50 eventos para no llenar memoria
+    save_json('logs.json', logs[:50])
 
 # ==========================================
 #  PARTE A: TIENDA PÚBLICA (Sin cambios)
@@ -95,7 +110,6 @@ def webhook():
 #  PARTE B: CEREBRO ESTRATEGA (PROTEGIDO)
 # ==========================================
 
-# --- LOGIN DEL BOT ---
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     error = None
@@ -112,24 +126,24 @@ def admin_logout():
     session.pop('logged_in', None)
     return redirect(url_for('admin_login'))
 
-# --- DASHBOARD PROTEGIDO ---
 @app.route('/admin/bot')
 def bot_dashboard():
-    # CERROJO DE SEGURIDAD
-    if not session.get('logged_in'):
-        return redirect(url_for('admin_login'))
-        
+    if not session.get('logged_in'): return redirect(url_for('admin_login'))
+    
+    # CARGAMOS OBJETIVOS E HISTORIAL
     targets = load_json('targets.json')
-    return render_template('bot.html', targets=targets)
+    logs = load_json('logs.json')
+    
+    return render_template('bot.html', targets=targets, logs=logs)
 
 @app.route('/admin/bot/add', methods=['POST'])
 def bot_add():
-    if not session.get('logged_in'): return redirect(url_for('admin_login')) # Doble chequeo
-    
+    if not session.get('logged_in'): return redirect(url_for('admin_login'))
     username = request.form.get('username').replace('@', '').strip()
     targets = load_json('targets.json')
     for t in targets:
         if t['username'] == username: return "Error: Usuario ya existe", 400
+    
     targets.append({ "username": username, "last_shortcode": None })
     save_json('targets.json', targets)
     return redirect(url_for('bot_dashboard'))
@@ -137,14 +151,13 @@ def bot_add():
 @app.route('/admin/bot/delete/<username>')
 def bot_delete(username):
     if not session.get('logged_in'): return redirect(url_for('admin_login'))
-    
     targets = load_json('targets.json')
     targets = [t for t in targets if t['username'] != username]
     save_json('targets.json', targets)
     return redirect(url_for('bot_dashboard'))
 
 # --- EL MOTOR MATEMÁTICO ---
-def ejecutar_estrategia_vip(link):
+def ejecutar_estrategia_vip(link, user):
     log_acciones = []
     
     # 1. LIKES
@@ -159,7 +172,7 @@ def ejecutar_estrategia_vip(link):
         'link': link, 'quantity': total_likes, 'runs': runs, 'interval': interval
     }
     requests.post(LEGION_URL, data=payload_likes)
-    log_acciones.append(f"❤️ Likes: {total_likes} ({runs} tandas)")
+    log_acciones.append(f"❤️ {total_likes} Likes")
 
     # 2. VIEWS
     total_views = random.randint(2400, 3600)
@@ -168,7 +181,7 @@ def ejecutar_estrategia_vip(link):
         'link': link, 'quantity': total_views, 'runs': 24, 'interval': 60
     }
     requests.post(LEGION_URL, data=payload_views)
-    log_acciones.append(f"👀 Views: {total_views} (24h goteo)")
+    log_acciones.append(f"👀 {total_views} Views")
 
     # 3. SAVES
     total_saves = random.randint(10, 20)
@@ -176,7 +189,7 @@ def ejecutar_estrategia_vip(link):
         'key': LEGION_API_KEY, 'action': 'add', 'service': STRATEGY_IDS['saves'],
         'link': link, 'quantity': total_saves
     })
-    log_acciones.append(f"💾 Saves: {total_saves}")
+    log_acciones.append(f"💾 {total_saves} Saves")
 
     # 4. SHARES
     total_shares = random.randint(10, 15)
@@ -184,13 +197,16 @@ def ejecutar_estrategia_vip(link):
         'key': LEGION_API_KEY, 'action': 'add', 'service': STRATEGY_IDS['shares'],
         'link': link, 'quantity': total_shares
     })
-    log_acciones.append(f"🚀 Shares: {total_shares}")
-
-    return " | ".join(log_acciones)
+    log_acciones.append(f"🚀 {total_shares} Shares")
+    
+    # REGISTRAR
+    resumen = " | ".join(log_acciones)
+    registrar_log(user, link, resumen)
+    
+    return resumen
 
 @app.route('/sistema/vigia-automatico')
 def cron_vigia():
-    # Esta ruta NO lleva contraseña para que el CRON JOB pueda entrar
     targets = load_json('targets.json')
     L = instaloader.Instaloader()
     reporte = []
@@ -201,15 +217,21 @@ def cron_vigia():
         try:
             profile = instaloader.Profile.from_username(L.context, user)
             posts = profile.get_posts()
-            latest = next(posts, None)
             
-            if not latest: continue
+            # ANTI-FIJADOS: Tomamos 4 y buscamos el más nuevo por fecha
+            candidatos = list(islice(posts, 4))
+            
+            if not candidatos: continue
+            
+            latest = max(candidatos, key=lambda p: p.date_utc)
             shortcode = latest.shortcode
             
             if shortcode != t['last_shortcode']:
                 print(f"🚨 ESTRATEGIA ACTIVADA PARA {user}")
                 link = f"https://www.instagram.com/p/{shortcode}/"
-                res = ejecutar_estrategia_vip(link)
+                
+                res = ejecutar_estrategia_vip(link, user)
+                
                 t['last_shortcode'] = shortcode
                 cambios = True
                 reporte.append(f"✅ {user}: {res}")
