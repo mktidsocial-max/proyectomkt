@@ -3,79 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AUTO-LIKES BOT</title>
+    <title>ESTRATEGIA VIP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e4e4e7; }
         .glass { background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .input-dark { background: #000; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px; width: 100%; }
+        .input-dark { background: #000; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; width: 100%; outline: none; }
+        .input-dark:focus { border-color: #3b82f6; }
     </style>
 </head>
-<body class="p-4 md:p-10 max-w-4xl mx-auto">
+<body class="p-4 md:p-10 max-w-3xl mx-auto">
 
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex justify-between items-center mb-10">
         <div>
-            <h1 class="text-3xl font-bold text-white tracking-tighter"><i class="fa-solid fa-robot text-blue-500 mr-2"></i>AUTO-LIKES</h1>
-            <p class="text-zinc-500 text-sm">Sistema de vigilancia y disparo automático</p>
+            <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tighter"><i class="fa-solid fa-chess-queen text-purple-500 mr-2"></i>ESTRATEGIA VIP</h1>
+            <p class="text-zinc-500 text-sm">Vigilancia con Inteligencia Aleatoria</p>
         </div>
         <a href="/" class="text-xs bg-zinc-800 px-3 py-2 rounded text-zinc-400 hover:text-white">Volver a Tienda</a>
     </div>
 
-    <div class="glass p-6 rounded-xl mb-8">
-        <h2 class="text-sm font-bold text-zinc-400 uppercase mb-4">Agregar Objetivo</h2>
-        <form action="/admin/bot/add" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            <div>
-                <label class="text-xs text-zinc-500 block mb-1">Usuario Instagram (sin @)</label>
-                <input type="text" name="username" class="input-dark" placeholder="ej: lionelmessi" required>
+    <div class="glass p-6 md:p-8 rounded-2xl mb-8 border-t-4 border-purple-600">
+        <h2 class="text-sm font-bold text-white uppercase mb-6 tracking-wider">Activar Nuevo Objetivo</h2>
+        
+        <form action="/admin/bot/add" method="POST" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-grow">
+                <input type="text" name="username" class="input-dark" placeholder="Usuario de Instagram (ej: lionelmessi)" required>
             </div>
-            <div>
-                <label class="text-xs text-zinc-500 block mb-1">ID Servicio (Legion)</label>
-                <input type="number" name="service_id" class="input-dark" placeholder="ej: 410" required>
-            </div>
-            <div>
-                <label class="text-xs text-zinc-500 block mb-1">Cantidad</label>
-                <input type="number" name="quantity" class="input-dark" placeholder="ej: 1000" required>
-            </div>
-            <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition-colors">
-                <i class="fa-solid fa-plus mr-1"></i> Activar
+            <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <i class="fa-solid fa-radar"></i> ACTIVAR VIGILANCIA
             </button>
         </form>
+
+        <div class="mt-6 p-4 bg-white/5 rounded-lg border border-white/5">
+            <p class="text-[10px] text-zinc-400 uppercase mb-2 font-bold">El sistema aplicará automáticamente:</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-zinc-500">
+                <div class="flex items-center gap-2"><i class="fa-solid fa-heart text-red-500"></i> Likes (170-300)</div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-eye text-blue-500"></i> Views (2.4k-3.6k)</div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-bookmark text-yellow-500"></i> Saves (10-20)</div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-share text-green-500"></i> Shares (10-15)</div>
+            </div>
+        </div>
     </div>
 
     <div class="space-y-3">
         {% for target in targets %}
-        <div class="glass p-4 rounded-xl flex items-center justify-between group">
+        <div class="glass p-5 rounded-xl flex items-center justify-between group hover:border-purple-500/30 transition-colors">
             <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-orange-500 flex items-center justify-center">
-                    <i class="fa-brands fa-instagram text-white"></i>
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-900 to-black flex items-center justify-center border border-purple-500/20">
+                    <i class="fa-brands fa-instagram text-white text-xl"></i>
                 </div>
                 <div>
-                    <h3 class="font-bold text-white">@{{ target.username }}</h3>
-                    <p class="text-xs text-zinc-500">
-                        Servicio ID: <span class="text-zinc-300">{{ target.service_id }}</span> | 
-                        Cant: <span class="text-zinc-300">{{ target.quantity }}</span>
-                    </p>
+                    <h3 class="font-bold text-white text-lg">@{{ target.username }}</h3>
+                    <div class="flex gap-2 mt-1">
+                        <span class="text-[10px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded border border-green-500/20 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> VIGILANDO
+                        </span>
+                    </div>
                 </div>
             </div>
             
-            <div class="flex items-center gap-4">
-                <div class="text-right hidden md:block">
-                    <p class="text-[10px] text-zinc-500 uppercase">Último Post Detectado</p>
-                    <p class="text-xs font-mono text-blue-400">
+            <div class="flex items-center gap-6">
+                <div class="text-right hidden sm:block">
+                    <p class="text-[10px] text-zinc-500 uppercase">Último Post Procesado</p>
+                    <p class="text-xs font-mono text-purple-300">
                         {{ target.last_shortcode if target.last_shortcode else 'Esperando...' }}
                     </p>
                 </div>
-                <a href="/admin/bot/delete/{{ target.username }}" class="w-8 h-8 rounded bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors">
+                <a href="/admin/bot/delete/{{ target.username }}" class="w-10 h-10 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all" onclick="return confirm('¿Dejar de vigilar a este usuario?')">
                     <i class="fa-solid fa-trash"></i>
                 </a>
             </div>
         </div>
         {% else %}
-        <div class="text-center py-10 text-zinc-600">
-            <i class="fa-solid fa-ghost text-4xl mb-3 opacity-20"></i>
-            <p>No hay objetivos activos.</p>
+        <div class="text-center py-12 text-zinc-700 glass rounded-xl border-dashed border-2 border-zinc-800">
+            <i class="fa-solid fa-robot text-5xl mb-4 opacity-20"></i>
+            <p>El sistema está en reposo.</p>
+            <p class="text-xs text-zinc-600 mt-2">Agrega un usuario para comenzar.</p>
         </div>
         {% endfor %}
     </div>
