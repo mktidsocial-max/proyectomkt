@@ -277,5 +277,24 @@ def cron_vigia():
         
     return jsonify({"status": "ok", "actividad": reporte_general})
 
+# --- RUTA DE DIAGNÓSTICO (BORRAR LUEGO) ---
+@app.route('/test-conexion')
+def debug_db():
+    url = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}"
+    headers = {"X-Master-Key": JSONBIN_API_KEY}
+    
+    try:
+        req = requests.get(url, headers=headers)
+        return jsonify({
+            "1_codigo_respuesta": req.status_code,
+            "2_mensaje_bin": req.json(),
+            "3_mis_variables": {
+                "bin_id": JSONBIN_BIN_ID,
+                "api_key_inicio": JSONBIN_API_KEY[:5] + "..." # Solo mostramos el inicio por seguridad
+            }
+        })
+    except Exception as e:
+        return jsonify({"ERROR CRITICO": str(e)})
+
 if __name__ == '__main__':
     app.run(debug=True)
