@@ -21,12 +21,12 @@ LEGION_URL = "https://legionsmm.com/api/v2"
 
 sdk = mercadopago.SDK(MP_ACCESS_TOKEN)
 
-# --- IDs DE ESTRATEGIA ---
-STRATEGY_IDS = {
-    "likes": 410,    
-    "views": 5559,   
-    "saves": 4672,   
-    "shares": 5870   
+# --- IDs DE ESTRATEGIA Y MÍNIMOS ---
+STRATEGY_CONF = {
+    "likes":  {"id": 410,  "min_order": 10,  "batch_min": 15,  "batch_max": 25},
+    "views":  {"id": 5559, "min_order": 100, "batch_min": 150, "batch_max": 300},
+    "saves":  {"id": 4672, "min_order": 10,  "batch_min": 10,  "batch_max": 20},
+    "shares": {"id": 5870, "min_order": 10,  "batch_min": 10,  "batch_max": 15}
 }
 
 # --- UTILIDADES ---
@@ -38,7 +38,6 @@ def load_json(filename):
 def save_json(filename, data):
     with open(filename, 'w', encoding='utf-8') as f: json.dump(data, f, indent=2)
 
-# --- SISTEMA DE LOGS ---
 def registrar_log(usuario, link, detalles):
     logs = load_json('logs.json')
     nuevo_log = {
@@ -47,9 +46,7 @@ def registrar_log(usuario, link, detalles):
         "link": link,
         "accion": detalles
     }
-    # Guardamos el más nuevo arriba
     logs.insert(0, nuevo_log)
-    # Mantenemos solo los últimos 50 eventos para no llenar memoria
     save_json('logs.json', logs[:50])
 
 # ==========================================
@@ -107,7 +104,7 @@ def webhook():
 
 
 # ==========================================
-#  PARTE B: CEREBRO ESTRATEGA (PROTEGIDO)
+#  PARTE B: PANEL DE CONTROL
 # ==========================================
 
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -130,11 +127,11 @@ def admin_logout():
 def bot_dashboard():
     if not session.get('logged_in'): return redirect(url_for('admin_login'))
     
-    # CARGAMOS OBJETIVOS E HISTORIAL
     targets = load_json('targets.json')
     logs = load_json('logs.json')
+    missions = load_json('missions.json') # Mostrar misiones activas también
     
-    return render_template('bot.html', targets=targets, logs=logs)
+    return render_template('bot.html', targets=targets, logs=logs, missions=missions)
 
 @app.route('/admin/bot/add', methods=['POST'])
 def bot_add():
@@ -156,69 +153,127 @@ def bot_delete(username):
     save_json('targets.json', targets)
     return redirect(url_for('bot_dashboard'))
 
-# --- EL MOTOR MATEMÁTICO ---
-def ejecutar_estrategia_vip(link, user):
-    log_acciones = []
+
+# ==========================================
+#  PARTE C: CEREBRO DE MISIONES (NUEVO)
+# ==========================================
+
+def crear_misiones_nuevas(link, user):
+    """Calcula totales y guarda las tareas pendientes en missions.json"""
+    missions = load_json('missions.json')
     
-    # 1. LIKES
+    # 1. LIKES (Total 170-300)
     total_likes = random.randint(170, 300)
-    max_tandas_posibles = total_likes // 10 
-    if max_tandas_posibles >= 24: runs = 24; interval = 60 
-    elif max_tandas_posibles >= 12: runs = 12; interval = 120 
-    else: runs = max_tandas_posibles; interval = 1440 // runs 
-
-    payload_likes = {
-        'key': LEGION_API_KEY, 'action': 'add', 'service': STRATEGY_IDS['likes'],
-        'link': link, 'quantity': total_likes, 'runs': runs, 'interval': interval
-    }
-    requests.post(LEGION_URL, data=payload_likes)
-    log_acciones.append(f"❤️ {total_likes} Likes")
-
-    # 2. VIEWS
+    missions.append({
+        "type": "likes", "user": user, "link": link,
+        "remaining": total_likes, "service_id": STRATEGY_CONF["likes"]["id"]
+    })
+    
+    # 2. VIEWS (Total 2400-3600)
     total_views = random.randint(2400, 3600)
-    payload_views = {
-        'key': LEGION_API_KEY, 'action': 'add', 'service': STRATEGY_IDS['views'],
-        'link': link, 'quantity': total_views, 'runs': 24, 'interval': 60
-    }
-    requests.post(LEGION_URL, data=payload_views)
-    log_acciones.append(f"👀 {total_views} Views")
-
-    # 3. SAVES
+    missions.append({
+        "type": "views", "user": user, "link": link,
+        "remaining": total_views, "service_id": STRATEGY_CONF["views"]["id"]
+    })
+    
+    # 3. SAVES (Total 10-20) - Se manda todo junto porque es poco para dividir
     total_saves = random.randint(10, 20)
-    requests.post(LEGION_URL, data={
-        'key': LEGION_API_KEY, 'action': 'add', 'service': STRATEGY_IDS['saves'],
-        'link': link, 'quantity': total_saves
+    missions.append({
+        "type": "saves", "user": user, "link": link,
+        "remaining": total_saves, "service_id": STRATEGY_CONF["saves"]["id"]
     })
-    log_acciones.append(f"💾 {total_saves} Saves")
 
-    # 4. SHARES
+    # 4. SHARES (Total 10-15) - Se manda todo junto
     total_shares = random.randint(10, 15)
-    requests.post(LEGION_URL, data={
-        'key': LEGION_API_KEY, 'action': 'add', 'service': STRATEGY_IDS['shares'],
-        'link': link, 'quantity': total_shares
+    missions.append({
+        "type": "shares", "user": user, "link": link,
+        "remaining": total_shares, "service_id": STRATEGY_CONF["shares"]["id"]
     })
-    log_acciones.append(f"🚀 {total_shares} Shares")
-    
-    # REGISTRAR
-    resumen = " | ".join(log_acciones)
-    registrar_log(user, link, resumen)
-    
-    return resumen
 
+    save_json('missions.json', missions)
+    return f"Misiones creadas: {total_likes} Likes, {total_views} Views, {total_saves} Saves."
+
+def procesar_misiones_pendientes():
+    """Se ejecuta cada 30 min. Toma un poquito de cada misión y lo manda."""
+    missions = load_json('missions.json')
+    log_report = []
+    
+    misiones_activas = []
+    
+    for m in missions:
+        # Configuración según tipo
+        conf = STRATEGY_CONF.get(m["type"])
+        
+        if not conf: continue
+        
+        # Calcular lote (Batch) aleatorio
+        batch_size = random.randint(conf["batch_min"], conf["batch_max"])
+        
+        # Ajuste final: Si queda menos que el lote, mandar lo que queda
+        if m["remaining"] < batch_size:
+            batch_size = m["remaining"]
+            
+        # REGLA DE ORO: Si el lote es menor al mínimo de Legion, mandar el mínimo (o todo si es el final)
+        if batch_size < conf["min_order"]:
+             # Si lo que queda es menor al mínimo, hay que mandarlo igual PERO Legion puede fallar.
+             # Truco: Si falta poco (ej: 5 likes), mejor no mandarlos para no perder plata,
+             # O acumularlos (pero eso complica).
+             # En este caso, si queda < min_order, intentamos mandar min_order si tenemos saldo, 
+             # o cerramos la misión.
+             if m["remaining"] > 0:
+                 batch_size = m["remaining"] # Intentar mandar resto
+        
+        # Ejecutar pedido a Legion
+        if batch_size > 0:
+            try:
+                # OJO: Si batch_size < min_order, Legion dará error. 
+                # Aseguramos que solo enviamos si cumple MINIMO o si es SAVES/SHARES que configuramos para ir de una.
+                if batch_size >= conf["min_order"]:
+                    requests.post(LEGION_URL, data={
+                        'key': LEGION_API_KEY, 'action': 'add',
+                        'service': m["service_id"], 'link': m["link"], 'quantity': batch_size
+                    })
+                    m["remaining"] -= batch_size
+                    log_report.append(f"📦 {m['type'].upper()}: Enviados {batch_size} a {m['user']}")
+                else:
+                    # Caso borde: Quedan 8 likes, mínimo es 10.
+                    # Opción: Mandar 10 para cerrar.
+                    requests.post(LEGION_URL, data={
+                        'key': LEGION_API_KEY, 'action': 'add',
+                        'service': m["service_id"], 'link': m["link"], 'quantity': conf["min_order"]
+                    })
+                    m["remaining"] = 0 # Forzar cierre
+                    log_report.append(f"📦 {m['type'].upper()}: Cierre final ({conf['min_order']}) a {m['user']}")
+            except Exception as e:
+                log_report.append(f"❌ Error API: {str(e)}")
+
+        # Si todavía queda saldo, mantener la misión viva
+        if m["remaining"] > 0:
+            misiones_activas.append(m)
+        else:
+            log_report.append(f"✅ Misión {m['type']} completada para {m['user']}")
+
+    save_json('missions.json', misiones_activas)
+    return log_report
+
+# --- CRON JOB UNIFICADO ---
 @app.route('/sistema/vigia-automatico')
 def cron_vigia():
     targets = load_json('targets.json')
     L = instaloader.Instaloader()
-    reporte = []
-    cambios = False
+    reporte_general = []
+    cambios_targets = False
     
+    # 1. EJECUTAR MISIONES PENDIENTES (Goteo)
+    logs_misiones = procesar_misiones_pendientes()
+    reporte_general.extend(logs_misiones)
+    
+    # 2. BUSCAR NUEVOS POSTS
     for t in targets:
         user = t['username']
         try:
             profile = instaloader.Profile.from_username(L.context, user)
             posts = profile.get_posts()
-            
-            # ANTI-FIJADOS: Tomamos 4 y buscamos el más nuevo por fecha
             candidatos = list(islice(posts, 4))
             
             if not candidatos: continue
@@ -227,21 +282,33 @@ def cron_vigia():
             shortcode = latest.shortcode
             
             if shortcode != t['last_shortcode']:
-                print(f"🚨 ESTRATEGIA ACTIVADA PARA {user}")
+                print(f"🚨 NUEVO POST DETECTADO: {user}")
                 link = f"https://www.instagram.com/p/{shortcode}/"
                 
-                res = ejecutar_estrategia_vip(link, user)
+                # EN LUGAR DE DISPARAR, CREAMOS MISIONES
+                res_creacion = crear_misiones_nuevas(link, user)
+                
+                # Guardar log importante
+                registrar_log(user, link, "🎯 Post Detectado - Iniciando Campaña")
                 
                 t['last_shortcode'] = shortcode
-                cambios = True
-                reporte.append(f"✅ {user}: {res}")
+                cambios_targets = True
+                reporte_general.append(f"🆕 {user}: {res_creacion}")
             else:
-                reporte.append(f"💤 {user}: Sin novedad")
+                # No llenamos el reporte de "Sin novedad" para no saturar,
+                # a menos que no haya misiones corriendo
+                pass
+                
         except Exception as e:
-            reporte.append(f"❌ Error {user}: {str(e)}")
+            reporte_general.append(f"❌ Error escaneo {user}: {str(e)}")
             
-    if cambios: save_json('targets.json', targets)
-    return jsonify({"status": "ok", "log": reporte})
+    if cambios_targets: save_json('targets.json', targets)
+    
+    # Guardar logs de ejecución de goteo si hubo actividad
+    if logs_misiones:
+        registrar_log("SISTEMA", "Auto-Goteo", " | ".join(logs_misiones))
+        
+    return jsonify({"status": "ok", "actividad": reporte_general})
 
 if __name__ == '__main__':
     app.run(debug=True)
