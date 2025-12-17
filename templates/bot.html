@@ -12,8 +12,6 @@
         .glass { background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .input-dark { background: #000; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; width: 100%; outline: none; }
         .input-dark:focus { border-color: #3b82f6; }
-        
-        /* Estilo para la tabla de logs */
         .log-row:nth-child(even) { background-color: rgba(255,255,255,0.02); }
     </style>
 </head>
@@ -22,7 +20,7 @@
     <div class="flex justify-between items-center mb-8">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tighter"><i class="fa-solid fa-chess-queen text-purple-500 mr-2"></i>ESTRATEGIA VIP</h1>
-            <p class="text-zinc-500 text-sm">Panel de Control Inteligente</p>
+            <p class="text-zinc-500 text-sm">Panel de Control Inteligente (Nube Activa)</p>
         </div>
         <div class="flex gap-2">
             <a href="/admin/bot" class="text-xs bg-zinc-800 px-3 py-2 rounded text-zinc-400 hover:text-white"><i class="fa-solid fa-rotate"></i></a>
@@ -40,34 +38,63 @@
         </form>
     </div>
 
-    <h2 class="text-xl font-bold text-white mb-4">Objetivos Activos</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
-        {% for target in targets %}
-        <div class="glass p-4 rounded-xl flex items-center justify-between group border border-zinc-800 hover:border-purple-500/30 transition-colors">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-900 to-black flex items-center justify-center border border-purple-500/20">
-                    <i class="fa-brands fa-instagram text-white"></i>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        <div>
+            <h2 class="text-xl font-bold text-white mb-4">Objetivos Activos</h2>
+            <div class="flex flex-col gap-3">
+                {% for target in targets %}
+                <div class="glass p-4 rounded-xl flex items-center justify-between group border border-zinc-800 hover:border-purple-500/30 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-900 to-black flex items-center justify-center border border-purple-500/20">
+                            <i class="fa-brands fa-instagram text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-white text-sm">@{{ target.username }}</h3>
+                            <span class="text-[10px] text-green-400 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> ESCANEANDO
+                            </span>
+                        </div>
+                    </div>
+                    <a href="/admin/bot/delete/{{ target.username }}" class="text-zinc-600 hover:text-red-500 transition-colors p-2" onclick="return confirm('¿Dejar de vigilar?')">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>
                 </div>
-                <div>
-                    <h3 class="font-bold text-white text-sm">@{{ target.username }}</h3>
-                    <span class="text-[10px] text-green-400 flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> ESCANEANDO
-                    </span>
+                {% else %}
+                <div class="text-center py-4 text-zinc-600 border border-dashed border-zinc-800 rounded-xl text-sm">
+                    Sin objetivos. Agrega uno arriba.
                 </div>
+                {% endfor %}
             </div>
-            <a href="/admin/bot/delete/{{ target.username }}" class="text-zinc-600 hover:text-red-500 transition-colors p-2" onclick="return confirm('¿Borrar?')">
-                <i class="fa-solid fa-trash"></i>
-            </a>
         </div>
-        {% else %}
-        <div class="col-span-2 text-center py-8 text-zinc-600 border border-dashed border-zinc-800 rounded-xl">
-            No hay objetivos. Agrega uno arriba.
+
+        <div>
+            <h2 class="text-xl font-bold text-white mb-4">Misiones (Goteo Activo)</h2>
+            <div class="flex flex-col gap-3">
+                {% for mission in missions %}
+                <div class="glass p-4 rounded-xl border border-blue-900/30 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-bold text-white text-xs uppercase mb-1">{{ mission.type }}</h3>
+                            <p class="text-zinc-400 text-xs">@{{ mission.user }}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-blue-400 font-bold text-sm">{{ mission.remaining }}</span>
+                            <p class="text-[10px] text-zinc-500">pendientes</p>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-zinc-600 border border-dashed border-zinc-800 rounded-xl text-sm">
+                    No hay envíos pendientes.
+                </div>
+                {% endfor %}
+            </div>
         </div>
-        {% endfor %}
     </div>
 
     <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-        <i class="fa-solid fa-list-check text-blue-500"></i> Historial de Disparos
+        <i class="fa-solid fa-clock-rotate-left text-zinc-400"></i> Historial de Actividad
     </h2>
     <div class="glass rounded-xl overflow-hidden border border-zinc-800">
         <div class="overflow-x-auto">
@@ -76,28 +103,38 @@
                     <tr>
                         <th class="p-4">Fecha</th>
                         <th class="p-4">Objetivo</th>
-                        <th class="p-4">Acción Realizada</th>
+                        <th class="p-4">Detalle</th>
                         <th class="p-4">Link</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-zinc-800">
                     {% for log in logs %}
                     <tr class="log-row hover:bg-white/5 transition-colors">
-                        <td class="p-4 font-mono text-xs whitespace-nowrap">{{ log.fecha }}</td>
-                        <td class="p-4 font-bold text-white">@{{ log.usuario }}</td>
+                        <td class="p-4 font-mono text-xs whitespace-nowrap text-zinc-500">{{ log.fecha }}</td>
+                        <td class="p-4 font-bold text-white">
+                            {% if log.usuario == 'SISTEMA' %}
+                                <span class="text-blue-400">SISTEMA</span>
+                            {% else %}
+                                @{{ log.usuario }}
+                            {% endif %}
+                        </td>
                         <td class="p-4 text-xs">
                             {{ log.accion }}
                         </td>
                         <td class="p-4">
+                            {% if 'http' in log.link %}
                             <a href="{{ log.link }}" target="_blank" class="text-blue-400 hover:text-blue-300">
                                 <i class="fa-solid fa-external-link-alt"></i>
                             </a>
+                            {% else %}
+                            -
+                            {% endif %}
                         </td>
                     </tr>
                     {% else %}
                     <tr>
                         <td colspan="4" class="p-8 text-center text-zinc-600">
-                            Aún no se han registrado operaciones automáticas.
+                            La base de datos de historial está vacía.
                         </td>
                     </tr>
                     {% endfor %}
