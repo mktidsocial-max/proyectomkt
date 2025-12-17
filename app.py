@@ -18,7 +18,7 @@ ADMIN_PASSWORD = "vip2025"
 # Ya puse tu Master Key aquí abajo extraída de tu imagen
 JSONBIN_API_KEY = "$2a$10$PLVbCTZpFi2EEtkKGOwUO09RFaMx53qA7iNx.sCNZEQ.9bW.leQK6" 
 # ¡PEGA AQUÍ EL BIN ID QUE CREASTE EN EL PASO 1! (Entre las comillas)
-JSONBIN_BIN_ID = "69433cc3ae596e708fa1660c"
+JSONBIN_BIN_ID = "69433e3e43b1c97be9f5a86f"
 
 # --- CONFIGURACIÓN ---
 MP_ACCESS_TOKEN = os.environ.get("MP_ACCESS_TOKEN")
