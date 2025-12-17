@@ -179,7 +179,7 @@ def ejecutar_estrategia_vip(link):
     # Restricción: Mínimo 10.
     # Estrategia: UN SOLO DISPARO aleatorio entre 10 y 15.
     # ---------------------------------------------------------
-    total_shares = random.randint(10, 15)
+    total_shares = random.randint(10, 17)
     requests.post(LEGION_URL, data={
         'key': LEGION_API_KEY, 'action': 'add', 'service': STRATEGY_IDS['shares'],
         'link': link, 'quantity': total_shares
