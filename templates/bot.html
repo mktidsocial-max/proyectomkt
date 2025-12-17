@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUTO-LIKES BOT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e4e4e7; }
+        .glass { background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .input-dark { background: #000; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px; width: 100%; }
+    </style>
+</head>
+<body class="p-4 md:p-10 max-w-4xl mx-auto">
+
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tighter"><i class="fa-solid fa-robot text-blue-500 mr-2"></i>AUTO-LIKES</h1>
+            <p class="text-zinc-500 text-sm">Sistema de vigilancia y disparo automático</p>
+        </div>
+        <a href="/" class="text-xs bg-zinc-800 px-3 py-2 rounded text-zinc-400 hover:text-white">Volver a Tienda</a>
+    </div>
+
+    <div class="glass p-6 rounded-xl mb-8">
+        <h2 class="text-sm font-bold text-zinc-400 uppercase mb-4">Agregar Objetivo</h2>
+        <form action="/admin/bot/add" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+                <label class="text-xs text-zinc-500 block mb-1">Usuario Instagram (sin @)</label>
+                <input type="text" name="username" class="input-dark" placeholder="ej: lionelmessi" required>
+            </div>
+            <div>
+                <label class="text-xs text-zinc-500 block mb-1">ID Servicio (Legion)</label>
+                <input type="number" name="service_id" class="input-dark" placeholder="ej: 410" required>
+            </div>
+            <div>
+                <label class="text-xs text-zinc-500 block mb-1">Cantidad</label>
+                <input type="number" name="quantity" class="input-dark" placeholder="ej: 1000" required>
+            </div>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition-colors">
+                <i class="fa-solid fa-plus mr-1"></i> Activar
+            </button>
+        </form>
+    </div>
+
+    <div class="space-y-3">
+        {% for target in targets %}
+        <div class="glass p-4 rounded-xl flex items-center justify-between group">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-orange-500 flex items-center justify-center">
+                    <i class="fa-brands fa-instagram text-white"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white">@{{ target.username }}</h3>
+                    <p class="text-xs text-zinc-500">
+                        Servicio ID: <span class="text-zinc-300">{{ target.service_id }}</span> | 
+                        Cant: <span class="text-zinc-300">{{ target.quantity }}</span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden md:block">
+                    <p class="text-[10px] text-zinc-500 uppercase">Último Post Detectado</p>
+                    <p class="text-xs font-mono text-blue-400">
+                        {{ target.last_shortcode if target.last_shortcode else 'Esperando...' }}
+                    </p>
+                </div>
+                <a href="/admin/bot/delete/{{ target.username }}" class="w-8 h-8 rounded bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-trash"></i>
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-10 text-zinc-600">
+            <i class="fa-solid fa-ghost text-4xl mb-3 opacity-20"></i>
+            <p>No hay objetivos activos.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</body>
+</html>
