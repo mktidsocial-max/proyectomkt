@@ -4,9 +4,14 @@ import requests
 import instaloader
 import mercadopago
 import random
-from flask import Flask, request, render_template, jsonify, redirect, url_for
+from flask import Flask, request, render_template, jsonify, redirect, url_for, session
 
 app = Flask(__name__)
+
+# --- SEGURIDAD ---
+# Necesario para guardar la sesión del usuario logueado
+app.secret_key = os.urandom(24) 
+ADMIN_PASSWORD = "vip2025" # <--- TU CONTRASEÑA PARA ENTRAR AL BOT
 
 # --- CONFIGURACIÓN ---
 MP_ACCESS_TOKEN = os.environ.get("MP_ACCESS_TOKEN")
@@ -15,12 +20,12 @@ LEGION_URL = "https://legionsmm.com/api/v2"
 
 sdk = mercadopago.SDK(MP_ACCESS_TOKEN)
 
-# --- TUS NUEVOS IDs DE SERVICIO ---
+# --- TUS IDs DE ESTRATEGIA ---
 STRATEGY_IDS = {
-    "likes": 410,    # Likes (Min 10)
-    "views": 5559,   # Vistas VIP + Impresiones + Visita Perfil (Min 100)
-    "saves": 4672,   # Guardar publicación (Min 10)
-    "shares": 5870   # Compartir publicación (Min 10)
+    "likes": 410,    
+    "views": 5559,   
+    "saves": 4672,   
+    "shares": 5870   
 }
 
 # --- UTILIDADES ---
@@ -33,7 +38,7 @@ def save_json(filename, data):
     with open(filename, 'w', encoding='utf-8') as f: json.dump(data, f, indent=2)
 
 # ==========================================
-#  PARTE A: TIENDA (Ventas)
+#  PARTE A: TIENDA PÚBLICA (Sin cambios)
 # ==========================================
 @app.route('/')
 def home():
@@ -87,16 +92,40 @@ def webhook():
 
 
 # ==========================================
-#  PARTE B: CEREBRO ESTRATEGA (Auto-Vigía)
+#  PARTE B: CEREBRO ESTRATEGA (PROTEGIDO)
 # ==========================================
 
+# --- LOGIN DEL BOT ---
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    error = None
+    if request.method == 'POST':
+        if request.form.get('password') == ADMIN_PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('bot_dashboard'))
+        else:
+            error = "Contraseña Incorrecta"
+    return render_template('admin_login.html', error=error)
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('admin_login'))
+
+# --- DASHBOARD PROTEGIDO ---
 @app.route('/admin/bot')
 def bot_dashboard():
+    # CERROJO DE SEGURIDAD
+    if not session.get('logged_in'):
+        return redirect(url_for('admin_login'))
+        
     targets = load_json('targets.json')
     return render_template('bot.html', targets=targets)
 
 @app.route('/admin/bot/add', methods=['POST'])
 def bot_add():
+    if not session.get('logged_in'): return redirect(url_for('admin_login')) # Doble chequeo
+    
     username = request.form.get('username').replace('@', '').strip()
     targets = load_json('targets.json')
     for t in targets:
@@ -107,6 +136,8 @@ def bot_add():
 
 @app.route('/admin/bot/delete/<username>')
 def bot_delete(username):
+    if not session.get('logged_in'): return redirect(url_for('admin_login'))
+    
     targets = load_json('targets.json')
     targets = [t for t in targets if t['username'] != username]
     save_json('targets.json', targets)
@@ -116,26 +147,12 @@ def bot_delete(username):
 def ejecutar_estrategia_vip(link):
     log_acciones = []
     
-    # ---------------------------------------------------------
-    # 1. LIKES (ID 410): Autoridad Principal
-    # Objetivo: 170 a 300 likes totales.
-    # Restricción: Mínimo 10 likes por orden.
-    # ---------------------------------------------------------
+    # 1. LIKES
     total_likes = random.randint(170, 300)
-    
-    # Calculamos cuántas tandas podemos hacer sin violar el mínimo de 10
     max_tandas_posibles = total_likes // 10 
-    
-    # Queremos extenderlo lo más posible (ideal 24h), pero sin romper el mínimo
-    if max_tandas_posibles >= 24:
-        runs = 24
-        interval = 60 # Cada 1 hora
-    elif max_tandas_posibles >= 12:
-        runs = 12
-        interval = 120 # Cada 2 horas
-    else:
-        runs = max_tandas_posibles # Las que alcancen
-        interval = 1440 // runs # Repartidas en el día
+    if max_tandas_posibles >= 24: runs = 24; interval = 60 
+    elif max_tandas_posibles >= 12: runs = 12; interval = 120 
+    else: runs = max_tandas_posibles; interval = 1440 // runs 
 
     payload_likes = {
         'key': LEGION_API_KEY, 'action': 'add', 'service': STRATEGY_IDS['likes'],
@@ -144,15 +161,8 @@ def ejecutar_estrategia_vip(link):
     requests.post(LEGION_URL, data=payload_likes)
     log_acciones.append(f"❤️ Likes: {total_likes} ({runs} tandas)")
 
-    # ---------------------------------------------------------
-    # 2. VIEWS (ID 5559): Volumen Alto
-    # Objetivo: 2400 a 3600 totales (100-150/hora x 24).
-    # Restricción: Mínimo 100 views por orden.
-    # ---------------------------------------------------------
+    # 2. VIEWS
     total_views = random.randint(2400, 3600)
-    
-    # Como el total es > 2400 y el mínimo es 100, podemos hacer 24 tandas seguro.
-    # (2400 / 24 = 100 por tanda).
     payload_views = {
         'key': LEGION_API_KEY, 'action': 'add', 'service': STRATEGY_IDS['views'],
         'link': link, 'quantity': total_views, 'runs': 24, 'interval': 60
@@ -160,12 +170,7 @@ def ejecutar_estrategia_vip(link):
     requests.post(LEGION_URL, data=payload_views)
     log_acciones.append(f"👀 Views: {total_views} (24h goteo)")
 
-    # ---------------------------------------------------------
-    # 3. SAVES (ID 4672): Credibilidad Baja
-    # Objetivo: Pocos, para no parecer bot.
-    # Restricción: Mínimo 10.
-    # Estrategia: UN SOLO DISPARO aleatorio entre 10 y 20.
-    # ---------------------------------------------------------
+    # 3. SAVES
     total_saves = random.randint(10, 20)
     requests.post(LEGION_URL, data={
         'key': LEGION_API_KEY, 'action': 'add', 'service': STRATEGY_IDS['saves'],
@@ -173,13 +178,8 @@ def ejecutar_estrategia_vip(link):
     })
     log_acciones.append(f"💾 Saves: {total_saves}")
 
-    # ---------------------------------------------------------
-    # 4. SHARES (ID 5870): Credibilidad Baja
-    # Objetivo: Pocos.
-    # Restricción: Mínimo 10.
-    # Estrategia: UN SOLO DISPARO aleatorio entre 10 y 15.
-    # ---------------------------------------------------------
-    total_shares = random.randint(10, 17)
+    # 4. SHARES
+    total_shares = random.randint(10, 15)
     requests.post(LEGION_URL, data={
         'key': LEGION_API_KEY, 'action': 'add', 'service': STRATEGY_IDS['shares'],
         'link': link, 'quantity': total_shares
@@ -190,6 +190,7 @@ def ejecutar_estrategia_vip(link):
 
 @app.route('/sistema/vigia-automatico')
 def cron_vigia():
+    # Esta ruta NO lleva contraseña para que el CRON JOB pueda entrar
     targets = load_json('targets.json')
     L = instaloader.Instaloader()
     reporte = []
@@ -208,9 +209,7 @@ def cron_vigia():
             if shortcode != t['last_shortcode']:
                 print(f"🚨 ESTRATEGIA ACTIVADA PARA {user}")
                 link = f"https://www.instagram.com/p/{shortcode}/"
-                
                 res = ejecutar_estrategia_vip(link)
-                
                 t['last_shortcode'] = shortcode
                 cambios = True
                 reporte.append(f"✅ {user}: {res}")
