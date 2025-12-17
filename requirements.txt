@@ -2,3 +2,4 @@ flask
 mercadopago
 requests
 gunicorn
+instaloader
