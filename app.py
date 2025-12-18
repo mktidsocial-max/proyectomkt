@@ -19,7 +19,7 @@ ADMIN_PASSWORD = "vip2025"
 JSONBIN_API_KEY = "$2a$10$PLVbCTZpFi2EEtkKGOwUO09RFaMx53qA7iNx.sCNZEQ.9bW.leQK6".strip()
 
 # Usamos el BIN ID ...86f (El que vimos en la foto que TIENE los datos)
-JSONBIN_BIN_ID = "69433e3e43b1c97be9f5a86f".strip()
+JSONBIN_BIN_ID = "694362c843b1c97be9f5fdb6".strip()
 
 # --- CONFIGURACIÓN DE APIS ---
 MP_ACCESS_TOKEN = os.environ.get("MP_ACCESS_TOKEN")
