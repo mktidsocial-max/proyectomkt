@@ -14,11 +14,8 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24) 
 ADMIN_PASSWORD = "vip2025" 
 
-# --- CONFIGURACIÓN DE TU CAJA FUERTE (JSONBIN) ---
-# ¡VERIFICA QUE ESTA SEA TU API KEY CORRECTA!
+# --- TUS CREDENCIALES (Verificadas del Diagnóstico) ---
 JSONBIN_API_KEY = "$2a$10$PLVbCTZpFi2EEtkKGOwUO09RFaMx53qA7iNx.sCNZEQ.9bW.leQK6" 
-
-# TU BIN ID (Sacado de tu prueba de diagnóstico exitosa)
 JSONBIN_BIN_ID = "69433e3e43b1c97be9f5a86f"
 
 # --- CONFIGURACIÓN DE APIS ---
@@ -36,20 +33,41 @@ STRATEGY_CONF = {
     "shares": {"id": 5870, "min_order": 10,  "batch_min": 10,  "batch_max": 15}
 }
 
-# --- UTILIDADES DE LA NUBE (Optimizadas) ---
+# --- UTILIDADES DE LA NUBE (MODO CHIVATO) ---
 def get_db():
-    """Descarga toda la base de datos de una sola vez"""
+    """Descarga la base de datos y REPORTA ERRORES si falla"""
     url = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}"
     headers = {"X-Master-Key": JSONBIN_API_KEY}
+    
     try:
-        req = requests.get(url, headers=headers)
+        req = requests.get(url, headers=headers, timeout=10) # 10 segs max
+        
         if req.status_code == 200:
             return req.json().get("record", {})
         else:
-            print(f"Error JsonBin: {req.status_code}")
-            return {}
-    except:
-        return {}
+            # SI FALLA, DEVOLVEMOS UN LOG DE ERROR PARA VERLO EN PANTALLA
+            return {
+                "targets": [],
+                "missions": [],
+                "logs": [{
+                    "fecha": "ERROR",
+                    "usuario": "SISTEMA",
+                    "link": "#",
+                    "accion": f"⚠️ ERROR DE CONEXIÓN: Status {req.status_code}. Revisa API Key."
+                }]
+            }
+    except Exception as e:
+        # SI EXPLOTA, DEVOLVEMOS EL ERROR TÉCNICO
+        return {
+            "targets": [],
+            "missions": [],
+            "logs": [{
+                "fecha": "ERROR CRÍTICO",
+                "usuario": "PYTHON",
+                "link": "#",
+                "accion": f"⚠️ EXCEPCIÓN: {str(e)}"
+            }]
+        }
 
 def save_db(data):
     """Guarda toda la base de datos"""
@@ -61,16 +79,16 @@ def save_db(data):
     requests.put(url, json=data, headers=headers)
 
 def load_json_local(filename):
-    """Solo para services.json que sigue siendo local"""
     try:
         with open(filename, 'r', encoding='utf-8') as f: return json.load(f)
     except: return []
 
 def registrar_log(usuario, link, detalles):
-    """Función inteligente que lee, actualiza y guarda"""
-    db = get_db() # Bajamos todo
+    db = get_db()
+    # Si get_db devolvió un error, no intentamos guardar nada para no romper más
+    if "ERROR" in str(db.get('logs', [])): return
+
     logs = db.get('logs', [])
-    
     nuevo_log = {
         "fecha": datetime.now().strftime("%d/%m %H:%M"),
         "usuario": usuario,
@@ -78,9 +96,8 @@ def registrar_log(usuario, link, detalles):
         "accion": detalles
     }
     logs.insert(0, nuevo_log)
-    
-    db['logs'] = logs[:50] # Actualizamos solo la parte de logs
-    save_db(db) # Subimos todo de nuevo
+    db['logs'] = logs[:50]
+    save_db(db)
 
 # ==========================================
 #  PARTE A: TIENDA PÚBLICA
@@ -160,9 +177,7 @@ def admin_logout():
 def bot_dashboard():
     if not session.get('logged_in'): return redirect(url_for('admin_login'))
     
-    # --- OPTIMIZACIÓN CRÍTICA ---
-    # Hacemos UNA sola llamada a JsonBin para traer todo el paquete.
-    # Esto evita que la API se bloquee por "spam" de solicitudes.
+    # Bajamos la DB. Si falla, 'db' tendrá un mensaje de error adentro.
     db = get_db()
     
     targets = db.get('targets', [])
@@ -176,16 +191,17 @@ def bot_add():
     if not session.get('logged_in'): return redirect(url_for('admin_login'))
     username = request.form.get('username').replace('@', '').strip()
     
-    db = get_db() # Bajamos todo
+    db = get_db()
+    # Protección: Si db falló, no intentamos agregar nada
+    if "ERROR" in str(db.get('logs', [])): return "Error de conexión con Base de Datos", 500
+
     targets = db.get('targets', [])
-    
     for t in targets:
         if t['username'] == username: return "Error: Usuario ya existe", 400
     
     targets.append({ "username": username, "last_shortcode": None })
-    
-    db['targets'] = targets # Actualizamos targets
-    save_db(db) # Subimos todo
+    db['targets'] = targets 
+    save_db(db)
     
     return redirect(url_for('bot_dashboard'))
 
@@ -194,24 +210,23 @@ def bot_delete(username):
     if not session.get('logged_in'): return redirect(url_for('admin_login'))
     
     db = get_db()
+    if "ERROR" in str(db.get('logs', [])): return "Error de conexión con Base de Datos", 500
+
     targets = db.get('targets', [])
     targets = [t for t in targets if t['username'] != username]
-    
     db['targets'] = targets
     save_db(db)
-    
     return redirect(url_for('bot_dashboard'))
 
 
 # ==========================================
-#  PARTE C: CEREBRO DE MISIONES (Goteo)
+#  PARTE C: CEREBRO DE MISIONES
 # ==========================================
 
 def crear_misiones_nuevas(link, user):
     db = get_db()
     missions = db.get('missions', [])
     
-    # Configuración de totales
     total_likes = random.randint(170, 300)
     missions.append({ "type": "likes", "user": user, "link": link, "remaining": total_likes, "service_id": STRATEGY_CONF["likes"]["id"] })
     
@@ -226,14 +241,14 @@ def crear_misiones_nuevas(link, user):
 
     db['missions'] = missions
     save_db(db)
-    
-    return f"Misiones creadas: {total_likes} Likes, {total_views} Views, {total_saves} Saves."
+    return f"Misiones creadas: {total_likes} Likes, {total_views} Views."
 
 def procesar_misiones_pendientes():
     db = get_db()
+    if "ERROR" in str(db.get('logs', [])): return [] # Abortar si no hay DB
+
     missions = db.get('missions', [])
-    
-    if not missions: return [] # Si no hay nada, no hacemos nada
+    if not missions: return []
 
     log_report = []
     misiones_activas = []
@@ -243,31 +258,22 @@ def procesar_misiones_pendientes():
         if not conf: continue
         
         batch_size = random.randint(conf["batch_min"], conf["batch_max"])
-        
-        if m["remaining"] < batch_size: 
-            batch_size = m["remaining"]
-        
-        # Lógica de cierre para evitar mínimos que dan error en Legion
-        if m["remaining"] > 0 and batch_size < conf["min_order"]:
-            batch_size = m["remaining"]
+        if m["remaining"] < batch_size: batch_size = m["remaining"]
+        if m["remaining"] > 0 and batch_size < conf["min_order"]: batch_size = m["remaining"]
 
         if batch_size > 0:
             try:
-                # Solo ejecutamos si cumple el mínimo aceptable O si es un cierre seguro
                 if batch_size >= conf["min_order"]:
                     requests.post(LEGION_URL, data={'key': LEGION_API_KEY, 'action': 'add', 'service': m["service_id"], 'link': m["link"], 'quantity': batch_size})
                     m["remaining"] -= batch_size
                     log_report.append(f"📦 {m['type'].upper()}: Enviados {batch_size} a {m['user']}")
                 else:
-                    # Si es muy poco (ej: quedan 2 likes), cerramos la misión sin enviar para no dar error
                     m["remaining"] = 0
             except Exception as e:
                 log_report.append(f"❌ Error API: {str(e)}")
 
-        if m["remaining"] > 0: 
-            misiones_activas.append(m)
-        else: 
-            log_report.append(f"✅ Misión {m['type']} completada")
+        if m["remaining"] > 0: misiones_activas.append(m)
+        else: log_report.append(f"✅ Misión {m['type']} completada")
 
     db['missions'] = misiones_activas
     save_db(db)
@@ -277,17 +283,16 @@ def procesar_misiones_pendientes():
 @app.route('/sistema/vigia-automatico')
 def cron_vigia():
     db = get_db()
+    if "ERROR" in str(db.get('logs', [])): return jsonify({"status": "error_db", "msg": db['logs'][0]['accion']})
+
     targets = db.get('targets', [])
-    
     L = instaloader.Instaloader()
     reporte_general = []
     cambios_targets = False
     
-    # 1. Ejecutar Goteo (Misiones)
     logs_misiones = procesar_misiones_pendientes()
     reporte_general.extend(logs_misiones)
     
-    # 2. Detectar nuevos posts
     for t in targets:
         user = t['username']
         try:
@@ -301,46 +306,33 @@ def cron_vigia():
             shortcode = latest.shortcode
             
             if shortcode != t['last_shortcode']:
-                print(f"🚨 NUEVO POST DETECTADO: {user}")
+                print(f"🚨 NUEVO POST: {user}")
                 link = f"https://www.instagram.com/p/{shortcode}/"
-                
-                # Creamos misiones
                 res = crear_misiones_nuevas(link, user)
-                
-                # Registramos en Log (esto hace su propia llamada save_db, cuidado, pero es esporádico)
                 registrar_log(user, link, "🎯 Post Detectado - Iniciando Campaña")
-                
                 t['last_shortcode'] = shortcode
                 cambios_targets = True
                 reporte_general.append(f"🆕 {user}: {res}")
         except Exception as e:
             reporte_general.append(f"❌ Error {user}: {str(e)}")
             
-    # Si hubo detección de nuevos posts, actualizamos targets en la DB
     if cambios_targets:
-        # Volvemos a leer DB por si cambió durante el proceso de misiones (safety)
         db_final = get_db()
         db_final['targets'] = targets
-        # Respetamos las misiones y logs que ya se guardaron en los pasos anteriores
         save_db(db_final)
     
-    # Log de actividad del goteo
-    if logs_misiones: 
-        registrar_log("SISTEMA", "Auto-Goteo", " | ".join(logs_misiones))
+    if logs_misiones: registrar_log("SISTEMA", "Auto-Goteo", " | ".join(logs_misiones))
         
     return jsonify({"status": "ok", "actividad": reporte_general})
 
-# --- RUTA DE DIAGNÓSTICO (Mantenla por si acaso) ---
+# Mantenemos el diagnóstico
 @app.route('/test-conexion')
 def debug_db():
     url = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}"
     headers = {"X-Master-Key": JSONBIN_API_KEY}
     try:
         req = requests.get(url, headers=headers)
-        return jsonify({
-            "1_codigo_respuesta": req.status_code,
-            "2_mensaje_bin": req.json()
-        })
+        return jsonify({"1_codigo_respuesta": req.status_code,"2_mensaje_bin": req.json()})
     except Exception as e:
         return jsonify({"ERROR CRITICO": str(e)})
 
