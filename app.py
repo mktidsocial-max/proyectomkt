@@ -16,8 +16,8 @@ ADMIN_PASSWORD = "vip2025"
 
 # --- CREDENCIALES DE ORO (Combinación Ganadora del Diagnóstico) ---
 # Usamos .strip() para borrar espacios fantasmas si se copian mal
-JSONBIN_API_KEY = "$2a$10$QWA4l0OTVvWqWTAMJ6DLxeLsBTR6c0u3SEg3XdKrJMfqOmGzEpSW2".strip()
-JSONBIN_BIN_ID = "69433e3e43b1c97be9f5a86f".strip()
+JSONBIN_API_KEY = "$2a$10$QWA4l0OTVvWqWTAMJ6DLxeLsBTR6c0u3SEg3XdKrJMfqOmGzEpSW2"
+JSONBIN_BIN_ID = "69433e3e43b1c97be9f5a86f"
 
 # --- CONFIGURACIÓN DE APIS ---
 MP_ACCESS_TOKEN = os.environ.get("MP_ACCESS_TOKEN")
