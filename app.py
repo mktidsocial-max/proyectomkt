@@ -14,8 +14,11 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24) 
 ADMIN_PASSWORD = "vip2025" 
 
-# --- TUS CREDENCIALES (Verificadas del Diagnóstico) ---
+# --- CREDENCIALES ACTUALIZADAS (Extraídas de tus nuevas fotos) ---
+# Usamos la MASTER KEY porque es la que tiene permiso total (sin error 401)
 JSONBIN_API_KEY = "$2a$10$PLVbCTZpFi2EEtkKGOwUO09RFaMx53qA7iNx.sCNZEQ.9bW.leQK6" 
+
+# Usamos el BIN ID que TIENE DATOS (el terminado en ...86f según tu foto)
 JSONBIN_BIN_ID = "69433e3e43b1c97be9f5a86f"
 
 # --- CONFIGURACIÓN DE APIS ---
@@ -33,44 +36,34 @@ STRATEGY_CONF = {
     "shares": {"id": 5870, "min_order": 10,  "batch_min": 10,  "batch_max": 15}
 }
 
-# --- UTILIDADES DE LA NUBE (MODO CHIVATO) ---
+# --- UTILIDADES DE LA NUBE ---
 def get_db():
-    """Descarga la base de datos y REPORTA ERRORES si falla"""
     url = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}"
+    # Volvemos a X-Master-Key que es la segura para tu cuenta
     headers = {"X-Master-Key": JSONBIN_API_KEY}
     
     try:
-        req = requests.get(url, headers=headers, timeout=10) # 10 segs max
+        req = requests.get(url, headers=headers, timeout=10)
         
         if req.status_code == 200:
             return req.json().get("record", {})
         else:
-            # SI FALLA, DEVOLVEMOS UN LOG DE ERROR PARA VERLO EN PANTALLA
             return {
-                "targets": [],
-                "missions": [],
+                "targets": [], "missions": [],
                 "logs": [{
-                    "fecha": "ERROR",
-                    "usuario": "SISTEMA",
-                    "link": "#",
-                    "accion": f"⚠️ ERROR DE CONEXIÓN: Status {req.status_code}. Revisa API Key."
+                    "fecha": "ERROR", "usuario": "SISTEMA", "link": "#",
+                    "accion": f"⚠️ ERROR DE CREDENCIALES: Status {req.status_code}. Verifica Bin ID."
                 }]
             }
     except Exception as e:
-        # SI EXPLOTA, DEVOLVEMOS EL ERROR TÉCNICO
         return {
-            "targets": [],
-            "missions": [],
+            "targets": [], "missions": [],
             "logs": [{
-                "fecha": "ERROR CRÍTICO",
-                "usuario": "PYTHON",
-                "link": "#",
-                "accion": f"⚠️ EXCEPCIÓN: {str(e)}"
+                "fecha": "ERROR", "usuario": "PYTHON", "link": "#", "accion": f"⚠️ EXCEPCIÓN: {str(e)}"
             }]
         }
 
 def save_db(data):
-    """Guarda toda la base de datos"""
     url = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}"
     headers = {
         "Content-Type": "application/json",
@@ -85,7 +78,6 @@ def load_json_local(filename):
 
 def registrar_log(usuario, link, detalles):
     db = get_db()
-    # Si get_db devolvió un error, no intentamos guardar nada para no romper más
     if "ERROR" in str(db.get('logs', [])): return
 
     logs = db.get('logs', [])
@@ -154,7 +146,7 @@ def webhook():
 
 
 # ==========================================
-#  PARTE B: PANEL DE CONTROL (OPTIMIZADO)
+#  PARTE B: PANEL DE CONTROL
 # ==========================================
 
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -177,9 +169,7 @@ def admin_logout():
 def bot_dashboard():
     if not session.get('logged_in'): return redirect(url_for('admin_login'))
     
-    # Bajamos la DB. Si falla, 'db' tendrá un mensaje de error adentro.
     db = get_db()
-    
     targets = db.get('targets', [])
     logs = db.get('logs', [])
     missions = db.get('missions', [])
@@ -192,8 +182,7 @@ def bot_add():
     username = request.form.get('username').replace('@', '').strip()
     
     db = get_db()
-    # Protección: Si db falló, no intentamos agregar nada
-    if "ERROR" in str(db.get('logs', [])): return "Error de conexión con Base de Datos", 500
+    if "ERROR" in str(db.get('logs', [])): return "Error DB", 500
 
     targets = db.get('targets', [])
     for t in targets:
@@ -210,7 +199,7 @@ def bot_delete(username):
     if not session.get('logged_in'): return redirect(url_for('admin_login'))
     
     db = get_db()
-    if "ERROR" in str(db.get('logs', [])): return "Error de conexión con Base de Datos", 500
+    if "ERROR" in str(db.get('logs', [])): return "Error DB", 500
 
     targets = db.get('targets', [])
     targets = [t for t in targets if t['username'] != username]
@@ -245,7 +234,7 @@ def crear_misiones_nuevas(link, user):
 
 def procesar_misiones_pendientes():
     db = get_db()
-    if "ERROR" in str(db.get('logs', [])): return [] # Abortar si no hay DB
+    if "ERROR" in str(db.get('logs', [])): return [] 
 
     missions = db.get('missions', [])
     if not missions: return []
@@ -324,17 +313,6 @@ def cron_vigia():
     if logs_misiones: registrar_log("SISTEMA", "Auto-Goteo", " | ".join(logs_misiones))
         
     return jsonify({"status": "ok", "actividad": reporte_general})
-
-# Mantenemos el diagnóstico
-@app.route('/test-conexion')
-def debug_db():
-    url = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}"
-    headers = {"X-Master-Key": JSONBIN_API_KEY}
-    try:
-        req = requests.get(url, headers=headers)
-        return jsonify({"1_codigo_respuesta": req.status_code,"2_mensaje_bin": req.json()})
-    except Exception as e:
-        return jsonify({"ERROR CRITICO": str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)
