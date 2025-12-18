@@ -14,12 +14,10 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24) 
 ADMIN_PASSWORD = "vip2025" 
 
-# --- CREDENCIALES ACTUALIZADAS (Extraídas de tus nuevas fotos) ---
-# Usamos la MASTER KEY porque es la que tiene permiso total (sin error 401)
-JSONBIN_API_KEY = "$2a$10$PLVbCTZpFi2EEtkKGOwUO09RFaMx53qA7iNx.sCNZEQ.9bW.leQK6" 
-
-# Usamos el BIN ID que TIENE DATOS (el terminado en ...86f según tu foto)
-JSONBIN_BIN_ID = "69433e3e43b1c97be9f5a86f"
+# --- CREDENCIALES DE ORO (Combinación Ganadora del Diagnóstico) ---
+# Usamos .strip() para borrar espacios fantasmas si se copian mal
+JSONBIN_API_KEY = "$2a$10$PLVbCTZpFi2EEtkKGOwUO09RFaMx53qA7iNx.sCNZEQ.9bW.leQK6".strip()
+JSONBIN_BIN_ID = "69433e3e43b1c97be9f5a86f".strip()
 
 # --- CONFIGURACIÓN DE APIS ---
 MP_ACCESS_TOKEN = os.environ.get("MP_ACCESS_TOKEN")
@@ -39,7 +37,7 @@ STRATEGY_CONF = {
 # --- UTILIDADES DE LA NUBE ---
 def get_db():
     url = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}"
-    # Volvemos a X-Master-Key que es la segura para tu cuenta
+    # Usamos X-Master-Key porque estamos usando la llave maestra
     headers = {"X-Master-Key": JSONBIN_API_KEY}
     
     try:
@@ -48,11 +46,12 @@ def get_db():
         if req.status_code == 200:
             return req.json().get("record", {})
         else:
+            # Reporte de error detallado
             return {
                 "targets": [], "missions": [],
                 "logs": [{
                     "fecha": "ERROR", "usuario": "SISTEMA", "link": "#",
-                    "accion": f"⚠️ ERROR DE CREDENCIALES: Status {req.status_code}. Verifica Bin ID."
+                    "accion": f"⚠️ ERROR {req.status_code}: Verifica que Bin ID y Key coincidan."
                 }]
             }
     except Exception as e:
